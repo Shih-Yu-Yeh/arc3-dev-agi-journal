@@ -1,0 +1,86 @@
+baseURL = "https://ocean240812.github.io/arc3-dev-agi-journal/"
+languageCode = "en-us"
+title = "ARC3 Dev Journal"
+theme = "PaperMod"
+pagination.pagerSize = 20
+enableRobotsTXT = true
+enableEmoji = false
+
+[params]
+  author = "Vincent (ocean240812)"
+  description = "Kaggle ARC Prize 2026 (ARC-AGI-3) — 33 days of AI agent development (0.87 to 2.56)"
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowShareButtons = false
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowWordCount = true
+  ShowToc = true
+  TocOpen = false
+  hideMeta = false
+  disableHLJS = false
+  hideSummary = false
+
+  [params.homeInfoParams]
+    Title = "ARC3 Dev Journal"
+    Content = """
+    Kaggle ARC Prize 2026 (ARC-AGI-3) — 33 days of AI agent development.
+    
+    From a stub baseline on 2026-07-31 to LB 2.56 on 2026-08-25, through 21 public submissions and 33 private experiment versions. Each post documents one submission: technical choice, parameter decision, local vs LB score, patch verification, and root-cause analysis.
+    
+    Author: Vincent (ocean240812@gmail.com)
+    """
+
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/ocean240812"
+  [[params.socialIcons]]
+    name = "kaggle"
+    url = "https://www.kaggle.com/ocean240812"
+
+  [params.assets]
+    favicon = "/favicon.ico"
+    disableHLJS = false
+
+  [params.cover]
+    hidden = true
+    hiddenInList = true
+    hiddenInSingle = false
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [markup.highlight]
+    style = "github-dark"
+    lineNos = false
+    codeFences = true
+    guessSyntax = true
+    tabWidth = 2
+
+[menu]
+  [[menu.main]]
+    identifier = "posts"
+    name = "Posts"
+    url = "/posts/"
+    weight = 10
+  [[menu.main]]
+    identifier = "lb-progress"
+    name = "LB Progress"
+    url = "/lb-progress/"
+    weight = 20
+  [[menu.main]]
+    identifier = "lessons"
+    name = "Lessons"
+    url = "/lessons-learned/"
+    weight = 30
+  [[menu.main]]
+    identifier = "about"
+    name = "About"
+    url = "/about/"
+    weight = 40
+
+[taxonomies]
+  category = "categories"
+  tag = "tags"
