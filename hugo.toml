@@ -76,10 +76,15 @@ enableEmoji = false
     url = "/lessons-learned/"
     weight = 30
   [[menu.main]]
+    identifier = "abbreviations"
+    name = "Abbreviations"
+    url = "/abbreviations/"
+    weight = 40
+  [[menu.main]]
     identifier = "about"
     name = "About"
     url = "/about/"
-    weight = 40
+    weight = 50
 
 [taxonomies]
   category = "categories"
