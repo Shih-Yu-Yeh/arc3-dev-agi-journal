@@ -46,9 +46,11 @@ The pattern: regressions hide in the gap between "what the code claims" and "wha
 
 ## Quick Navigation by Outcome
 
-**Best**: [V24 — LB 2.56 (winner)](/posts/2026-08-25-arc3-v24-mm-upscale8-winner/)
+**Start here**: [Prologue - Kaggle platform and ARC-AGI-3 introduction](/posts/2026-07-30-arc3-prologue-kaggle-and-arc-agi-3/)
 
-**Worst**: [V21 — LB 0.00 (dummy submission)](/posts/2026-08-22-arc3-v21-dummy-submission/)
+**Best**: [V24 - LB 2.56 (winner)](/posts/2026-08-25-arc3-v24-mm-upscale8-winner/)
+
+**Worst**: [V21 - LB 0.00 (dummy submission)](/posts/2026-08-22-arc3-v21-dummy-submission/)
 
 **Silent failures**: [V14 (temperature never fired)](/posts/2026-08-11-arc3-v14-temperature-patch-failed/), [V31 (7 modules never executed)](/posts/2026-08-30-arc3-v34-nooa-v3/)
 
