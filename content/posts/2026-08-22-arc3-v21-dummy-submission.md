@@ -1,10 +1,10 @@
 +++
-title = "ARC3 V21 (LB 0.00): 2-Pass Visible Updates - Dummy Submission Incident"
+title = "ARC3 V21 (LB 0.00): 2-Pass Visible Updates — Dummy 提交事故調查"
 date = 2026-08-22T13:36:00+08:00
 draft = false
 tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "dummy-submission", "pipeline-failure"]
 categories = ["ARC3 Dev Journal"]
-summary = "All 9 patches fired. 2-pass visible updates added. LB returned 0.00 because submission.parquet was a 3411-byte dummy. Pipeline issue, not a solver issue."
+summary = "9 個 patch 全部 fire。加了 2-pass visible updates。LB 回 0.00，因為 submission.parquet 是 3411 byte 的 dummy。Pipeline 問題，不是 solver 問題。"
 lb_score = "0.00"
 version = "V21"
 status = "PIPELINE_FAILURE"
@@ -12,43 +12,43 @@ status = "PIPELINE_FAILURE"
 
 ## TL;DR
 
-All 9 patches fired. 2-pass visible updates added. LB returned 0.00 because submission.parquet was a 3411-byte dummy. Pipeline issue, not a solver issue.
+9 個 patch 全部 fire。加了 2-pass visible updates。LB 回 0.00，因為 submission.parquet 是 3411 byte 的 dummy。Pipeline 問題，不是 solver 問題。
 
 ## Context
 
-V19 regressed to 1.17. The hypothesis: 2-pass visible updates (play each game twice, retain the better score) would recover the regression by giving the solver a second chance on games where the first pass timed out.
+V19 退步到 1.17。假設：2-pass visible updates (每遊戲玩兩次，保留較高分) 會讓 solver 在第一次 timeout 的遊戲上有第二次機會，恢復退步。
 
-V21 added 2-pass on top of V19's 9 patches. All patches verified firing. The expectation: LB 1.5+.
+V21 在 V19 的 9 個 patch 上加 2-pass。所有 patch 驗證 fire。預期：LB 1.5+。
 
-The result: LB 0.00. The submission.parquet was 3411 bytes, which is a dummy placeholder, not real game scores.
+結果：LB 0.00。submission.parquet 是 3411 byte，是 dummy placeholder，不是真實遊戲分數。
 
-## Technical Choice
+## 技術選擇
 
-2-pass mechanism: run `bm.run()` twice with the same game list. After both passes, write the better score per game to submission.parquet.
+2-pass 機制：用相同遊戲清單跑 `bm.run()` 兩次。兩次都跑完後，每遊戲取較高分寫進 submission.parquet。
 
-The 2-pass implementation was correct in the notebook source. The problem was not the 2-pass logic; it was the submission.parquet schema.
+2-pass 實作在 notebook source 是對的。問題不在 2-pass 邏輯；在 submission.parquet schema。
 
-The 3411-byte submission.parquet is the placeholder written when `KAGGLE_IS_COMPETITION_RERUN=False` (commit run). The hidden rerun should overwrite it with real scores. But the hidden rerun produced a 3411-byte file too, meaning the hidden rerun did not actually run the solver.
+3411 byte 的 submission.parquet 是 `KAGGLE_IS_COMPETITION_RERUN=False` (commit run) 時寫的 placeholder。Hidden rerun 應該用真實分數覆寫它。但 hidden rerun 也產出了 3411 byte 檔案，表示 hidden rerun 沒實際跑 solver。
 
-## Parameter Decisions
+## 參數決策
 
-| Parameter | V19 | V21 | Rationale |
+| 參數 | V19 | V21 | 理由 |
 |---|---|---|---|
 | n_passes | 1 | 2 | Visible updates |
-| submission.parquet size | ~5KB (real) | 3411B (dummy) | Pipeline failed |
-| patches | 9 fired | 9 fired | All verified |
-| model | Qwen3.8-27B-FP8 | Qwen3.8-27B-FP8 | unchanged |
+| submission.parquet 大小 | ~5KB (真實) | 3411B (dummy) | Pipeline 失敗 |
+| patches | 9 個 fire | 9 個 fire | 全部驗證 |
+| model | Qwen3.8-27B-FP8 | Qwen3.8-27B-FP8 | 未變 |
 
 ## Local vs LB Score
 
-- Local mean: not measured
-- Baseline (previous version): V19 LB 1.17
+- Local mean: 未量測
+- Baseline (上一版): V19 LB 1.17
 - Local delta: n/a
 - LB score: **0.00**
 
-## Patch Verification
+## Patch 驗證
 
-| Patch | Fired? | Marker |
+| Patch | 是否 fire? | Marker |
 |---|---|---|
 | FP8 KV cache | yes | ENABLE_FP8_KV=True |
 | MULTIMODAL_UPSCALE=8 | yes | Patched MULTIMODAL_UPSCALE to 8 |
@@ -60,22 +60,22 @@ The 3411-byte submission.parquet is the placeholder written when `KAGGLE_IS_COMP
 | context window set | yes | ANALYZER_CONTEXT_WINDOW = 32768 |
 | vLLM server started | yes | vLLM server ready |
 
-## Outcome Analysis
+## 結果分析
 
-LB 0.00. The submission.parquet was 3411 bytes, which is the dummy placeholder format.
+LB 0.00。submission.parquet 是 3411 byte，是 dummy placeholder 格式。
 
-Diagnosis: the hidden rerun did not actually run the solver. The commit run wrote the placeholder; the hidden rerun should have overwritten it with real scores. Instead, the hidden rerun also wrote a placeholder.
+診斷：hidden rerun 沒實際跑 solver。commit run 寫 placeholder；hidden rerun 應該用真實分數覆寫。但 hidden rerun 也寫了 placeholder。
 
-Three possible causes:
+三個可能原因：
 
-First, the 2-pass logic may have crashed during the hidden rerun, falling back to the placeholder. The 2-pass code wrapped `bm.run()` in a try/except, but the except block wrote a placeholder instead of re-raising.
+第一，2-pass 邏輯可能在 hidden rerun 階段崩潰，fallback 到 placeholder。2-pass code 把 `bm.run()` 包在 try/except，但 except block 寫 placeholder 而不是 re-raise。
 
-Second, the hidden rerun's environment may have differed from the commit run. The hidden rerun uses the internal gateway (`http://gateway:8001`), which may have been unavailable. The commit run uses the bundled `environment_files/`.
+第二，hidden rerun 環境可能跟 commit run 不同。Hidden rerun 用內部 gateway (`http://gateway:8001`)，可能無法使用。commit run 用 bundled `environment_files/`。
 
-Third, the submission.parquet schema may have been wrong. The 3411-byte size suggests a 1-row placeholder, not a 25-row or 110-row real submission.
+第三，submission.parquet schema 可能錯了。3411 byte 大小暗示是 1 列 placeholder，不是 25 列或 110 列真實 submission。
 
-The V21 resubmit (next post) tested whether the issue was transient.
+V21 resubmit (下一篇) 測 0.00 是 transient 還是 persistent。
 
-## Next Version Plan
+## 下一版計畫
 
-V21 resubmit: push the same kernel again, see if the 0.00 was transient or persistent.
+V21 resubmit：再 push 同一個 kernel，看 0.00 是 transient 還是 persistent。

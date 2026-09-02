@@ -4,7 +4,7 @@ date = 2026-08-24T01:43:00+08:00
 draft = false
 tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "anim-bundle"]
 categories = ["ARC3 Dev Journal"]
-summary = "Switched to jakobbrggen anim bundle. Fixed wheelhouse owner. 1-pass. LB 1.53, recovered from V21's 0.00. New personal best above V17's 1.43."
+summary = "切到 jakobbrggen anim bundle。修 wheelhouse owner。1-pass。LB 1.53，從 V21 的 0.00 恢復。新個人最佳，超過 V17 的 1.43。"
 lb_score = "1.53"
 version = "V23"
 status = "IMPROVEMENT"
@@ -12,46 +12,46 @@ status = "IMPROVEMENT"
 
 ## TL;DR
 
-Switched to jakobbrggen anim bundle. Fixed wheelhouse owner. 1-pass. LB 1.53, recovered from V21's 0.00. New personal best above V17's 1.43.
+切到 jakobbrggen anim bundle。修 wheelhouse owner。1-pass。LB 1.53，從 V21 的 0.00 恢復。新個人最佳，超過 V17 的 1.43。
 
 ## Context
 
-V21's 2-pass experiment produced 0.00 twice. The 2-pass code was abandoned. V23 reverted to 1-pass.
+V21 的 2-pass 實驗兩次都 0.00。2-pass code 被放棄。V23 退回 1-pass。
 
-Two changes: (1) switched to `jakobbrggen/taaf-kaggle-source-anim-20260807-anim` bundle, which has animation-awareness built in; (2) fixed the wheelhouse owner from `jeroencottaar` to `driessmit1`, which had been causing silent dependency resolution failures.
+兩個改動：(1) 切到 `jakobbrggen/taaf-kaggle-source-anim-20260807-anim` bundle，內建 animation-awareness；(2) 修 wheelhouse owner 從 `jeroencottaar` 改成 `driessmit1`，原本造成靜默 dependency resolution 失敗。
 
-## Technical Choice
+## 技術選擇
 
-Anim bundle: the `jakobbrggen/taaf-kaggle-source-anim-20260807-anim` bundle includes:
-- Animation-awareness (waits for game board to settle before reading)
-- Hard noop guard (prevents infinite loops)
-- Qwen3.8 model patch (auto-resolves to `jakobbrggen/qwen3-8-27b-fp8-hf-snapshot`)
+Anim bundle：`jakobbrggen/taaf-kaggle-source-anim-20260807-anim` bundle 包含：
+- Animation-awareness (等遊戲盤面穩定才讀)
+- Hard noop guard (防止無限迴圈)
+- Qwen3.8 model patch (自動解析到 `jakobbrggen/qwen3-8-27b-fp8-hf-snapshot`)
 
-Wheelhouse fix: changed `WHEELHOUSE_OWNER = 'jeroencottaar'` to `WHEELHOUSE_OWNER = 'driessmit1'`. The `jeroencottaar` wheelhouse had been deprecated; `driessmit1/arc3-vllm-h100-wheelhouse-v3` is the current canonical wheelhouse.
+Wheelhouse 修復：把 `WHEELHOUSE_OWNER = 'jeroencottaar'` 改成 `WHEELHOUSE_OWNER = 'driessmit1'`。`jeroencottaar` wheelhouse 已 deprecated；`driessmit1/arc3-vllm-h100-wheelhouse-v3` 是目前 canonical wheelhouse。
 
-No MULTIMODAL_UPSCALE patch in V23. The anim bundle defaults to MULTIMODAL_UPSCALE=4.
+V23 沒有 MULTIMODAL_UPSCALE patch。Anim bundle 預設 MULTIMODAL_UPSCALE=4。
 
-## Parameter Decisions
+## 參數決策
 
-| Parameter | V21 | V23 | Rationale |
+| 參數 | V21 | V23 | 理由 |
 |---|---|---|---|
 | source bundle | V19 bundle | jakobbrggen anim bundle | Animation-awareness |
-| wheelhouse owner | jeroencottaar | driessmit1 | Fix deprecation |
-| n_passes | 2 | 1 | Revert from V21 |
-| MULTIMODAL_UPSCALE | 8 | 4 (stock) | Revert to stock |
-| FP8 KV cache | enabled | enabled | kept |
-| model | Qwen3.8-27B-FP8 | Qwen3.8-27B-FP8 | unchanged |
+| wheelhouse owner | jeroencottaar | driessmit1 | 修 deprecation |
+| n_passes | 2 | 1 | 從 V21 退回 |
+| MULTIMODAL_UPSCALE | 8 | 4 (stock) | 退回 stock |
+| FP8 KV cache | enabled | enabled | 保留 |
+| model | Qwen3.8-27B-FP8 | Qwen3.8-27B-FP8 | 未變 |
 
 ## Local vs LB Score
 
 - Local mean: 3.008
-- Baseline (previous version): V21 LB 0.00
-- Local delta: n/a (V21 was 0.00)
+- Baseline (上一版): V21 LB 0.00
+- Local delta: n/a (V21 是 0.00)
 - LB score: **1.53**
 
-## Patch Verification
+## Patch 驗證
 
-| Patch | Fired? | Marker |
+| Patch | 是否 fire? | Marker |
 |---|---|---|
 | FP8 KV cache | yes | ENABLE_FP8_KV=True |
 | Qwen3.8 model | yes | qwen3-8-27b-fp8-hf-snapshot |
@@ -62,16 +62,16 @@ No MULTIMODAL_UPSCALE patch in V23. The anim bundle defaults to MULTIMODAL_UPSCA
 | context window set | yes | ANALYZER_CONTEXT_WINDOW = 32768 |
 | vLLM server started | yes | vLLM server ready |
 
-## Outcome Analysis
+## 結果分析
 
-LB 1.53, recovered from V21's 0.00 and set a new personal best above V17's 1.43.
+LB 1.53，從 V21 的 0.00 恢復並創新個人最佳 (超過 V17 的 1.43)。
 
-Attribution: the anim bundle's animation-awareness is the most likely contributor. Without it, the solver may read mid-animation frames and issue wrong actions. With it, the solver waits for the board to settle.
+歸因：anim bundle 的 animation-awareness 最可能是貢獻者。沒有它，solver 可能讀到動畫中的盤面發錯動作。有了它，solver 等盤面穩定才讀。
 
-The wheelhouse fix is necessary but not sufficient. Without the correct wheelhouse, vLLM cannot install. With it, vLLM installs but does not necessarily improve LB.
+Wheelhouse 修復是必要但不充分。沒有正確 wheelhouse，vLLM 無法安裝。有了它，vLLM 安裝但不必然改善 LB。
 
-MULTIMODAL_UPSCALE=4 (stock) is the bottleneck. V23 local mean 3.008. The next version (V24) will upgrade to MULTIMODAL_UPSCALE=8 and target local mean 5.0+.
+MULTIMODAL_UPSCALE=4 (stock) 是瓶頸。V23 local mean 3.008。下一版 (V24) 會升級到 MULTIMODAL_UPSCALE=8，目標 local mean 5.0+。
 
-## Next Version Plan
+## 下一版計畫
 
-V24: upgrade MULTIMODAL_UPSCALE from 4 to 8. Single-variable change. Target LB 2.0+.
+V24：把 MULTIMODAL_UPSCALE 從 4 升到 8。單一變數改動。目標 LB 2.0+。

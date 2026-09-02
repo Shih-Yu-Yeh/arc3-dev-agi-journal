@@ -1,10 +1,10 @@
 +++
-title = "ARC3 V6 (LB 0.75): Context Budget 32768 to 49152 - The Cost of Going Too Far"
+title = "ARC3 V6 (LB 0.75): Context Budget 32768 → 49152 — 過頭的代價 -0.31"
 date = 2026-08-04T02:19:00+08:00
 draft = false
 tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "context-window", "regression"]
 categories = ["ARC3 Dev Journal"]
-summary = "Increased analyzer context window from 32k to 49k tokens (+50%). LB dropped 1.06 to 0.75 (-0.31). Local mean was 0.58, predicting improvement. First hard lesson: local mean is not LB score."
+summary = "把 analyzer context window 從 32k 加到 49k tokens (+50%)。LB 從 1.06 掉到 0.75 (-0.31)。Local mean 0.58，預測會改善。第一個硬教訓：local mean ≠ LB score。"
 lb_score = "0.75"
 version = "V6"
 status = "REGRESSION"
@@ -12,40 +12,40 @@ status = "REGRESSION"
 
 ## TL;DR
 
-Increased analyzer context window from 32k to 49k tokens (+50%). LB dropped 1.06 to 0.75 (-0.31). Local mean was 0.58, predicting improvement. First hard lesson: local mean is not LB score.
+把 analyzer context window 從 32k 加到 49k tokens (+50%)。LB 從 1.06 掉到 0.75 (-0.31)。Local mean 0.58，預測會改善。第一個硬教訓：local mean ≠ LB score。
 
 ## Context
 
-V4 had a context window of 32768 tokens. The vLLM server was running with `--max-model-len 65536`. There was a 32k gap between what the model could handle and what the analyzer fed it. The hypothesis: larger context window lets the solver retain more game history, which should help on multi-level games.
+V4 的 context window 是 32768 tokens。vLLM server 跑 `--max-model-len 65536`。中間有 32k 的缺口。假設：更大的 context window 讓 solver 保留更多遊戲歷史，對多 level 遊戲有幫助。
 
-The local dry-run on the 6 public games supported this hypothesis: local mean rose from V4's 0.45 to 0.58 (+29%). I pushed to LB expecting similar improvement. The result was the opposite.
+Local dry-run 在 6 個公開遊戲上支持這個假設：local mean 從 V4 的 0.45 升到 0.58 (+29%)。我 push 到 LB 期待類似改善。結果是相反的。
 
-## Technical Choice
+## 技術選擇
 
-Single-variable change: `ANALYZER_CONTEXT_WINDOW = 49152` (was 32768). +50% increase. No other patches.
+單一變數改動：`ANALYZER_CONTEXT_WINDOW = 49152` (原 32768)。+50% 增加。其他不動。
 
-The choice of 49152 rather than 65536 was deliberate: leave headroom for the action prompt and observation tokens. The analyzer context window is shared between game history, system prompt, and current observation. Filling it to 65k would leave no room for the response.
+選 49152 而不是 65536 是刻意的：留 headroom 給 action prompt 和 observation tokens。Analyzer context window 在遊戲歷史、system prompt、當前 observation 之間共享。填到 65k 會沒有空間放 response。
 
-## Parameter Decisions
+## 參數決策
 
-| Parameter | V4 | V6 | Rationale |
+| 參數 | V4 | V6 | 理由 |
 |---|---|---|---|
-| ANALYZER_CONTEXT_WINDOW | 32768 | 49152 | +50% to retain more game history |
-| vLLM --max-model-len | 65536 | 65536 | unchanged |
-| model | Qwen3.6-27B-FP8 | Qwen3.6-27B-FP8 | unchanged |
-| temperature | 0.6 | 0.6 | unchanged |
-| MULTIMODAL_UPSCALE | 4 | 4 | unchanged |
+| ANALYZER_CONTEXT_WINDOW | 32768 | 49152 | +50% 保留更多遊戲歷史 |
+| vLLM --max-model-len | 65536 | 65536 | 未變 |
+| model | Qwen3.6-27B-FP8 | Qwen3.6-27B-FP8 | 未變 |
+| temperature | 0.6 | 0.6 | 未變 |
+| MULTIMODAL_UPSCALE | 4 | 4 | 未變 |
 
 ## Local vs LB Score
 
 - Local mean: 0.58
-- Baseline (previous version): V4 local 0.45
+- Baseline (上一版): V4 local 0.45
 - Local delta: +0.13 (+29%)
 - LB score: **0.75**
 
-## Patch Verification
+## Patch 驗證
 
-| Patch | Fired? | Marker |
+| Patch | 是否 fire? | Marker |
 |---|---|---|
 | temperature set | yes | temperature': 0.0 |
 | context window set | yes | ANALYZER_CONTEXT_WINDOW = 49152 |
@@ -53,20 +53,20 @@ The choice of 49152 rather than 65536 was deliberate: leave headroom for the act
 | submission.parquet written | yes | submission.parquet |
 | give-up mechanism | yes | max_runtime |
 
-## Outcome Analysis
+## 結果分析
 
-LB 0.75, -0.31 from V4's 1.06. Local mean improved +29%, LB regressed -29%. The first hard evidence that local mean is uncorrelated with LB score on hidden games.
+LB 0.75，比 V4 的 1.06 -0.31。Local mean 改善 +29%，LB 退步 -29%。第一個硬證據：local mean 與 hidden games 的 LB score 無相關。
 
-Three diagnoses:
+三個診斷：
 
-First, the local public games are short (average 6-8 levels, 30-50 actions per level). A 49k context window easily fits the entire game history. The solver retains everything, which helps on familiar games.
+第一，local 公開遊戲短 (平均 6-8 levels，每 level 30-50 actions)。49k context window 輕鬆容納整個遊戲歷史。Solver 保留所有資訊，對熟悉的遊戲有幫助。
 
-Second, the hidden games are longer. The `baseline_actions` sums to 17135 across 25 public games (avg 685 per game), but hidden games likely have longer action sequences. With 49k context, the solver may have been retaining noise from early levels that were no longer relevant, diluting attention on the current level.
+第二，hidden games 較長。25 個公開遊戲的 `baseline_actions` 總和是 17135 (平均每遊戲 685)，但 hidden games 可能有更長的 action 序列。49k context 下 solver 可能保留了早期 levels 已無關聯的雜訊，稀釋了對當前 level 的注意力。
 
-Third, larger context increases latency per inference call. With 9-hour wall clock and 110 games, every additional second per call compounds. The solver likely timed out on more games than V4, lowering contribution.
+第三，更大 context 增加每次 inference call 的延遲。9 小時 wall clock + 110 個遊戲，每多一秒會累積。Solver 可能在更多遊戲上 timeout，降低貢獻。
 
-The local mean improvement was real but measured on the wrong distribution. Public games favor more context; hidden games favor less. This is the §9 lesson: local mean improvement on public games does not transfer.
+Local mean 改善是真的，但量測在錯誤的分佈上。公開遊戲偏好更多 context；hidden games 偏好更少。這是 §9 教訓：local mean 在公開遊戲上的改善不會轉移到 hidden games。
 
-## Next Version Plan
+## 下一版計畫
 
-Revert context window to 32768 (V7 was a private test). V9 will replicate yw8837's LB-1.17 config as a controlled comparison.
+把 context window 退回 32768 (V7 是私下測試)。V9 會重製 yw8837 的 LB-1.17 config 作為 controlled comparison。

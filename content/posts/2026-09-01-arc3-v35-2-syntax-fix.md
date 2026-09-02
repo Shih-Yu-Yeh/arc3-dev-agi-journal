@@ -1,10 +1,10 @@
 +++
-title = "ARC3 V35.2 (LB 1.59): Fixed Syntax, Unchanged Score - Modules Are Net-Negative"
+title = "ARC3 V35.2 (LB 1.59): 修對了 Syntax，LB 沒變 — Modules 是 Net-Negative"
 date = 2026-09-01T03:38:00+08:00
 draft = false
 tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "modules", "net-negative"]
 categories = ["ARC3 Dev Journal"]
-summary = "Fixed the UnboundLocalError (0 errors). 6 modules ran correctly (10 experiment events). LB 1.59, identical to V35.1's broken score. Modules are confirmed net-negative."
+summary = "修了 UnboundLocalError (0 個錯誤)。6 個 modules 正確跑 (10 個 experiment events)。LB 1.59，跟 V35.1 broken 分數相同。Modules 確認是淨負面。"
 lb_score = "1.59"
 version = "V35.2"
 status = "CONFIRMED_NET_NEGATIVE"
@@ -12,19 +12,19 @@ status = "CONFIRMED_NET_NEGATIVE"
 
 ## TL;DR
 
-Fixed the UnboundLocalError (0 errors). 6 modules ran correctly (10 experiment events). LB 1.59, identical to V35.1's broken score. Modules are confirmed net-negative.
+修了 UnboundLocalError (0 個錯誤)。6 個 modules 正確跑 (10 個 experiment events)。LB 1.59，跟 V35.1 broken 分數相同。Modules 確認是淨負面。
 
 ## Context
 
-V35.1 had 2443 UnboundLocalError exceptions. The fix was syntactic: add `nonlocal _v35_last_level` at the top of `step_env`. V35.2 applied this fix and re-ran with identical config.
+V35.1 有 2443 個 UnboundLocalError。修復是語法的：在 `step_env` 頂部加 `nonlocal _v35_last_level`。V35.2 套用這個修復，用相同 config 重跑。
 
-The hypothesis: if V35.1's 1.59 was caused by the bug (modules never executed), then V35.2 with the fix should score higher (modules now execute). If V35.2 scores the same as V35.1, then the modules are net-negative even when they work.
+假設：如果 V35.1 的 1.59 是 bug 造成的 (modules 從未執行)，那 V35.2 修完後應該得分更高 (modules 現在執行)。如果 V35.2 跟 V35.1 同分，那 modules 即使能跑也是淨負面。
 
-This is the cleanest attribution experiment for module value.
+這是 module 價值最乾淨的歸因實驗。
 
-## Technical Choice
+## 技術選擇
 
-Single-line fix:
+一行修復：
 
 ```python
 # V35.1 (broken)
@@ -34,34 +34,34 @@ def step_env(...):
 
 # V35.2 (fixed)
 def step_env(...):
-    nonlocal _v35_last_level  # closure variable
+    nonlocal _v35_last_level  # closure 變數
     if some_condition:
         _v35_last_level = current_level
 ```
 
-All other config identical to V35.1.
+其他 config 跟 V35.1 完全相同。
 
-## Parameter Decisions
+## 參數決策
 
-| Parameter | V35.1 | V35.2 | Rationale |
+| 參數 | V35.1 | V35.2 | 理由 |
 |---|---|---|---|
-| nonlocal declaration | MISSING | present | Fix closure scope |
-| UnboundLocalError count | 2443 | 0 | Fixed |
-| modules | 6 (instantiated, never executed) | 6 (executed) | Now running |
+| nonlocal 宣告 | MISSING | present | 修 closure scope |
+| UnboundLocalError 計數 | 2443 | 0 | 修復 |
+| modules | 6 (instantiated, 從未執行) | 6 (執行) | 現在跑了 |
 | experiment events | 0 | 10 | HypothesisEngine firing |
-| MULTIMODAL_UPSCALE | 8 | 8 | unchanged |
-| FP8 KV cache | enabled | enabled | unchanged |
+| MULTIMODAL_UPSCALE | 8 | 8 | 未變 |
+| FP8 KV cache | enabled | enabled | 未變 |
 
 ## Local vs LB Score
 
 - Local mean: 6.44
-- Baseline (previous version): V35.1 LB 1.59
+- Baseline (上一版): V35.1 LB 1.59
 - Local delta: n/a
 - LB score: **1.59**
 
-## Patch Verification
+## Patch 驗證
 
-| Patch | Fired? | Marker |
+| Patch | 是否 fire? | Marker |
 |---|---|---|
 | FP8 KV cache | yes | ENABLE_FP8_KV=True |
 | MULTIMODAL_UPSCALE=8 | yes | Patched MULTIMODAL_UPSCALE to 8 |
@@ -74,25 +74,25 @@ All other config identical to V35.1.
 | vLLM server started | yes | vLLM server ready |
 | 6 modules instantiated | yes | v35.2: 6 modules instantiated |
 | HypothesisEngine firing | yes | HYPOTHESIS: Is your win hypothesis still valid? |
-| UnboundLocalError | 0 (fixed) | no UnboundLocalError in stdout |
+| UnboundLocalError | 0 (修復) | stdout 中無 UnboundLocalError |
 
-## Outcome Analysis
+## 結果分析
 
-LB 1.59, identical to V35.1's broken score. Local mean 6.44 (+29% over V24's local 4.984).
+LB 1.59，跟 V35.1 broken 分數相同。Local mean 6.44 (比 V24 local 4.984 +29%)。
 
-This is the strongest evidence that modules are net-negative for ARC-AGI-3:
+這是 modules 對 ARC-AGI-3 是淨負面最強的證據：
 
-- V35.1: 6 modules instantiated, 0 executed (2443 errors). LB 1.59.
-- V35.2: 6 modules instantiated, all executed (0 errors, 10 experiment events). LB 1.59.
+- V35.1：6 個 modules instantiated，0 個執行 (2443 錯誤)。LB 1.59。
+- V35.2：6 個 modules instantiated，全部執行 (0 錯誤，10 個 experiment events)。LB 1.59。
 
-The score did not change. The modules ran correctly in V35.2 but contributed zero net value. They added overhead (per-action hooks, hypothesis checks) without improving outcomes.
+分數沒變。Modules 在 V35.2 正確跑了，但貢獻零淨值。它們加了 overhead (per-action hooks、hypothesis checks) 沒改善結果。
 
-The local mean improved (+29% over V24), but this improvement was on the 6 familiar public games. The hidden games penalized the directive-driven behavior. Local mean is not LB score.
+Local mean 改善了 (比 V24 +29%)，但這改善是在 6 個熟悉的公開遊戲上。Hidden games 懲罰了 directive-driven 行為。Local mean 不是 LB score。
 
-Tufa Labs' empirical claim that "hand-crafted tools degrade model performance" is confirmed for ARC-AGI-3. Every module addition (V25 grafts, V33/V34 NOOA, V35 modules) regressed LB.
+Tufa Labs 經驗上宣稱「hand-crafted tools degrade model performance」對 ARC-AGI-3 成立。每次 module 加法 (V25 grafts、V33/V34 NOOA、V35 modules) 都退步 LB。
 
-The 33-day campaign concludes: V24's config (9 patches, no modules) at LB 2.56 is the local optimum. The path forward is not more modules; it is a better base model or a different benchmark.
+33 天 campaign 結論：V24 config (9 patches，無 modules) 在 LB 2.56 是局部最佳。前進方向不是更多 modules；是更好的 base model 或不同的 benchmark。
 
-## Next Version Plan
+## 下一版計畫
 
-Campaign paused. V36 would replicate V24's exact 9-patch config + busyaprime's 4 engine findings (frame[-1], do not trust available_actions, always pass x/y to ACTION6, do not assume level order = difficulty). No modules. Target: LB 2.8+ via engine-level fixes.
+Campaign 暫停。V36 會複製 V24 完全相同的 9-patch config + busyaprime 的 4 個 engine findings (frame[-1]、不信 available_actions、ACTION6 必帶 x/y、level order 不等於 difficulty)。無 modules。目標：透過 engine-level 修復達 LB 2.8+。

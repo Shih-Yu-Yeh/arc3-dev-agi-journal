@@ -1,10 +1,10 @@
 +++
-title = "ARC3 V28 (LB 1.72): Text-Only Ablation - Hidden Games Prefer Image Modality"
+title = "ARC3 V28 (LB 1.72): Text-Only Ablation — 證明 Hidden Games 偏好 Image"
 date = 2026-08-27T05:45:00+08:00
 draft = false
 tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "ablation", "text-only"]
 categories = ["ARC3 Dev Journal"]
-summary = "V24 config with MULTIMODAL_CONTEXT changed from image to text. LB 1.72, -0.84 from V24's 2.56. Proves hidden games prefer image modality."
+summary = "V24 config，把 MULTIMODAL_CONTEXT 從 image 改成 text。LB 1.72，比 V24 的 2.56 -0.84。證明 hidden games 偏好 image modality。"
 lb_score = "1.72"
 version = "V28"
 status = "ABLATION"
@@ -12,40 +12,40 @@ status = "ABLATION"
 
 ## TL;DR
 
-V24 config with MULTIMODAL_CONTEXT changed from image to text. LB 1.72, -0.84 from V24's 2.56. Proves hidden games prefer image modality.
+V24 config，把 MULTIMODAL_CONTEXT 從 image 改成 text。LB 1.72，比 V24 的 2.56 -0.84。證明 hidden games 偏好 image modality。
 
 ## Context
 
-V24 used image modality (MULTIMODAL_CONTEXT=current_grid with MULTIMODAL_UPSCALE=8). The hypothesis: text-only modality (MULTIMODAL_CONTEXT=text) would be faster (no vision token overhead) and might score similarly if the solver can read the board from text representation.
+V24 用 image modality (MULTIMODAL_CONTEXT=current_grid 加 MULTIMODAL_UPSCALE=8)。假設：text-only modality (MULTIMODAL_CONTEXT=text) 會更快 (無 vision token overhead)，且如果 solver 能從 text 表示讀出盤面，分數可能接近。
 
-V28 was a controlled ablation: V24's exact config with one change, `MULTIMODAL_CONTEXT=text` instead of `current_grid`. If LB drops significantly, image modality matters. If LB stays near 2.56, text is sufficient.
+V28 是 controlled ablation：V24 完全相同 config 加一個改動，`MULTIMODAL_CONTEXT = 'text'` (原 `'current_grid'`)。如果 LB 顯著下降，image modality 重要。如果 LB 留在 2.56 附近，text 就夠了。
 
-## Technical Choice
+## 技術選擇
 
-Single-variable change: `MULTIMODAL_CONTEXT = 'text'` (was `'current_grid'`). All other patches (FP8 KV, MM_UPSCALE=8, WBC, RE cap, NG) preserved from V24.
+單一變數改動：`MULTIMODAL_CONTEXT = 'text'` (原 `'current_grid'`)。其他 patch (FP8 KV、MM_UPSCALE=8、WBC、RE cap、NG) 從 V24 保留。
 
-The text representation is a 64x64 ASCII grid with color codes. The solver reads this as a string, not as an image. No vision tokens are generated.
+Text 表示是 64x64 ASCII grid 帶 color code。Solver 把它當字串讀，不是當 image 讀。沒有產生 vision tokens。
 
-## Parameter Decisions
+## 參數決策
 
-| Parameter | V24 | V28 | Rationale |
+| 參數 | V24 | V28 | 理由 |
 |---|---|---|---|
 | MULTIMODAL_CONTEXT | current_grid (image) | text | Ablation |
-| MULTIMODAL_UPSCALE | 8 | 8 | unchanged (irrelevant for text) |
-| FP8 KV cache | enabled | enabled | unchanged |
-| model | Qwen3.8-27B-FP8 | Qwen3.8-27B-FP8 | unchanged |
-| source bundle | anim bundle | anim bundle | unchanged |
+| MULTIMODAL_UPSCALE | 8 | 8 | 未變 (text 不適用) |
+| FP8 KV cache | enabled | enabled | 未變 |
+| model | Qwen3.8-27B-FP8 | Qwen3.8-27B-FP8 | 未變 |
+| source bundle | anim bundle | anim bundle | 未變 |
 
 ## Local vs LB Score
 
-- Local mean: not measured
-- Baseline (previous version): V24 LB 2.56
+- Local mean: 未量測
+- Baseline (上一版): V24 LB 2.56
 - Local delta: n/a
 - LB score: **1.72**
 
-## Patch Verification
+## Patch 驗證
 
-| Patch | Fired? | Marker |
+| Patch | 是否 fire? | Marker |
 |---|---|---|
 | FP8 KV cache | yes | ENABLE_FP8_KV=True |
 | MULTIMODAL_UPSCALE=8 | yes | Patched MULTIMODAL_UPSCALE to 8 |
@@ -57,16 +57,16 @@ The text representation is a 64x64 ASCII grid with color codes. The solver reads
 | context window set | yes | ANALYZER_CONTEXT_WINDOW = 32768 |
 | vLLM server started | yes | vLLM server ready |
 
-## Outcome Analysis
+## 結果分析
 
-LB 1.72, -0.84 from V24's 2.56. Image modality matters significantly.
+LB 1.72，比 V24 的 2.56 -0.84。Image modality 顯著重要。
 
-The 0.84 gap is the value of image modality over text modality, holding everything else constant. Image modality preserves spatial relationships that text representation loses. For ARC-AGI-3's cover predicates and co-location win conditions, spatial reasoning is essential.
+0.84 的差距是 image modality 相對 text modality 的價值，其他條件都一樣。Image modality 保留了 text 表示丟失的空間關係。對 ARC-AGI-3 的 cover predicate 與 co-location win condition 來說，空間推理是必要的。
 
-V28 also recovered from V25's 1.42 to 1.72, confirming that the V24 patches (FP8 KV, WBC, RE cap, NG) are necessary and that the thtennant fork's loss of these patches caused V25's regression.
+V28 也從 V25 的 1.42 恢復到 1.72，確認 V24 patches (FP8 KV、WBC、RE cap、NG) 是必要的，且 thtennant fork 掉這些 patch 造成 V25 的退步。
 
-The lesson: V24's config (with image modality) is the local optimum. Text modality is a viable alternative for competitions where image tokens are too expensive, but for ARC-AGI-3, image wins.
+教訓：V24 config (image modality) 是局部最佳。Text modality 是 vision tokens 太貴時的替代方案，但對 ARC-AGI-3 來說，image 贏。
 
-## Next Version Plan
+## 下一版計畫
 
-V30 was a synthesis AVO experiment. V31 will add NOOA modules on top of V24's config. Target: LB 3.0+ via cross-game learning.
+V30 是 synthesis AVO 實驗。V31 會在 V24 config 上加 NOOA modules。目標：透過 cross-game learning 達 LB 3.0+。

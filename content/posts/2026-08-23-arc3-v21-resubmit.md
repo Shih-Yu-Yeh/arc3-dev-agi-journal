@@ -1,10 +1,10 @@
 +++
-title = "ARC3 V21 Resubmit (LB 0.00): Same Pit Twice - Dummy Submission Persists"
+title = "ARC3 V21 RESUBMIT (LB 0.00): 同一坑踩兩次 — Dummy Submission 追蹤"
 date = 2026-08-23T01:12:00+08:00
 draft = false
 tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "dummy-submission", "pipeline-failure"]
 categories = ["ARC3 Dev Journal"]
-summary = "Same V21 kernel resubmitted. LB still 0.00. Confirmed the dummy submission issue is not transient; it is a real bug in the 2-pass implementation."
+summary = "同一份 V21 kernel 重 submit。LB 還是 0.00。確認 dummy submission 問題不是 transient；是 2-pass 實作的真 bug。"
 lb_score = "0.00"
 version = "V21 (resubmit)"
 status = "PIPELINE_FAILURE"
@@ -12,47 +12,47 @@ status = "PIPELINE_FAILURE"
 
 ## TL;DR
 
-Same V21 kernel resubmitted. LB still 0.00. Confirmed the dummy submission issue is not transient; it is a real bug in the 2-pass implementation.
+同一份 V21 kernel 重 submit。LB 還是 0.00。確認 dummy submission 問題不是 transient；是 2-pass 實作的真 bug。
 
 ## Context
 
-V21 returned 0.00. The question: was this transient (Kaggle gateway hiccup) or persistent (real bug)?
+V21 回 0.00。問題：是 transient (Kaggle gateway hiccup) 還是 persistent (真 bug)？
 
-V21 resubmit pushed the same kernel version again. If LB still returns 0.00, the issue is persistent and the 2-pass code has a real bug.
+V21 resubmit 再 push 同一個 kernel version。如果 LB 還是 0.00，問題是 persistent，2-pass code 有真 bug。
 
-## Technical Choice
+## 技術選擇
 
-Identical kernel to V21. No code changes. The only difference is the submission timestamp.
+跟 V21 完全相同的 kernel。沒改 code。唯一差異是 submission 時間戳。
 
-## Parameter Decisions
+## 參數決策
 
-| Parameter | V21 | V21 resubmit | Rationale |
+| 參數 | V21 | V21 resubmit | 理由 |
 |---|---|---|---|
-| kernel version | v2 | v2 (same) | Identical |
-| submission timestamp | 2026-08-22 13:36 | 2026-08-23 01:12 | Different |
-| code changes | none | none | Identical |
+| kernel version | v2 | v2 (同) | 完全相同 |
+| submission 時間戳 | 2026-08-22 13:36 | 2026-08-23 01:12 | 不同 |
+| code 改動 | 無 | 無 | 完全相同 |
 
 ## Local vs LB Score
 
-- Local mean: not measured
-- Baseline (previous version): V21 LB 0.00
+- Local mean: 未量測
+- Baseline (上一版): V21 LB 0.00
 - Local delta: 0.00
 - LB score: **0.00**
 
-## Patch Verification
+## Patch 驗證
 
-| Patch | Fired? | Marker |
+| Patch | 是否 fire? | Marker |
 |---|---|---|
-| (same as V21) | yes | 9 patches fired |
+| (同 V21) | yes | 9 個 patch fire |
 
-## Outcome Analysis
+## 結果分析
 
-LB 0.00 again. The dummy submission issue is persistent, not transient.
+LB 還是 0.00。Dummy submission 問題是 persistent，不是 transient。
 
-This confirms the 2-pass implementation has a real bug. The hidden rerun is not running the solver; it is writing a placeholder.
+確認 2-pass 實作有真 bug。Hidden rerun 沒跑 solver；它在寫 placeholder。
 
-The fix: remove the 2-pass logic entirely. V23 will revert to 1-pass with the anim bundle.
+修法：完全移除 2-pass 邏輯。V23 會退回 1-pass + anim bundle。
 
-## Next Version Plan
+## 下一版計畫
 
-Abandon 2-pass. V23 will use the anim bundle (`jakobbrggen/taaf-kaggle-source-anim-20260807-anim`) with 1-pass and the Qwen3.8 model patch.
+放棄 2-pass。V23 會用 anim bundle (`jakobbrggen/taaf-kaggle-source-anim-20260807-anim`) + 1-pass + Qwen3.8 model patch。

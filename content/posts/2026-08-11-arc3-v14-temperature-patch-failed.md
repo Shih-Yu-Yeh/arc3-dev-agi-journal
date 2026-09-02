@@ -1,10 +1,10 @@
 +++
-title = "ARC3 V14 (ERROR): Temperature 0.3 Patch - A Silent Failure"
+title = "ARC3 V14 (ERROR): Temperature 0.3 Patch — 一個靜默失敗的教訓"
 date = 2026-08-11T10:25:00+08:00
 draft = false
 tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "temperature", "silent-failure"]
 categories = ["ARC3 Dev Journal"]
-summary = "Claimed to lower temperature from 0.6 to 0.3. Patch verification shows temperature was still 0.6. Kernel ERROR'd on an unrelated issue. The temperature experiment was wasted."
+summary = "聲稱把 temperature 從 0.6 降到 0.3。Patch 驗證顯示 temperature 還是 0.6。Kernel 因其他原因 ERROR。Temperature 實驗白做了。"
 lb_score = "ERROR"
 version = "V14"
 status = "SILENT_FAILURE"
@@ -12,65 +12,65 @@ status = "SILENT_FAILURE"
 
 ## TL;DR
 
-Claimed to lower temperature from 0.6 to 0.3. Patch verification shows temperature was still 0.6. Kernel ERROR'd on an unrelated issue. The temperature experiment was wasted.
+聲稱把 temperature 從 0.6 降到 0.3。Patch 驗證顯示 temperature 還是 0.6。Kernel 因其他原因 ERROR。Temperature 實驗白做了。
 
 ## Context
 
-The hypothesis: ARC-AGI-3 hidden games have strict win conditions (e.g. cover predicate, co-location). Higher temperature (0.6) introduces action variance that may break these conditions. Lower temperature (0.3) should produce more deterministic, reproducible actions.
+假設：ARC-AGI-3 hidden games 有嚴格 win condition (例如 cover predicate、co-location)。較高 temperature (0.6) 引入動作變動，可能破壞這些條件。較低 temperature (0.3) 應該產生更確定、可重現的動作。
 
-V14 was designed to test this. The notebook source contained the patch code. The commit run was supposed to write `LOCAL_ANALYZER_TEMPERATURE: '0.3'` to the environment.
+V14 設計來測這個。Notebook source 含 patch code。Commit run 應該把 `LOCAL_ANALYZER_TEMPERATURE: '0.3'` 寫進環境。
 
-It did not.
+它沒有。
 
-## Technical Choice
+## 技術選擇
 
-The patch was supposed to set `LOCAL_ANALYZER_TEMPERATURE='0.3'` in the environment before the TAAF setup command ran. The TAAF setup reads this env var and writes it to `taaf_setup_env.json`, which the solver reads at runtime.
+Patch 應該在 TAAF setup command 跑之前設定 `LOCAL_ANALYZER_TEMPERATURE='0.3'`。TAAF setup 讀這個 env var 並寫進 `taaf_setup_env.json`，solver 在 runtime 讀取。
 
-The patch code was correct syntactically. The problem was the execution order: the env var was set after the TAAF setup command had already read the default value (0.6) and written `taaf_setup_env.json`. The patch was too late.
+Patch code 語法正確。問題在執行順序：env var 在 TAAF setup command 已經讀過預設值 (0.6) 並寫進 `taaf_setup_env.json` 之後才被設定。Patch 太晚了。
 
-## Parameter Decisions
+## 參數決策
 
-| Parameter | V13 | V14 (claimed) | V14 (actual) |
+| 參數 | V13 | V14 (聲稱) | V14 (實際) |
 |---|---|---|---|
 | LOCAL_ANALYZER_TEMPERATURE | 0.6 | 0.3 | 0.6 |
-| model | Qwen3.6-27B-FP8 | Qwen3.6-27B-FP8 | unchanged |
-| context window | 32768 | 32768 | unchanged |
-| MULTIMODAL_UPSCALE | 4 | 4 | unchanged |
+| model | Qwen3.6-27B-FP8 | Qwen3.6-27B-FP8 | 未變 |
+| context window | 32768 | 32768 | 未變 |
+| MULTIMODAL_UPSCALE | 4 | 4 | 未變 |
 
 ## Local vs LB Score
 
-- Local mean: n/a (kernel ERROR'd before solver ran)
-- Baseline (previous version): V13 LB 0.87
+- Local mean: n/a (kernel 在 solver 跑之前 ERROR)
+- Baseline (上一版): V13 LB 0.87
 - Local delta: n/a
 - LB score: **ERROR**
 
-## Patch Verification
+## Patch 驗證
 
-| Patch | Fired? | Marker |
+| Patch | 是否 fire? | Marker |
 |---|---|---|
-| temperature 0.3 | NO | log shows LOCAL_ANALYZER_TEMPERATURE: '0.6' |
-| temperature set (any) | yes | temperature': 0.0 (action selection) |
+| temperature 0.3 | NO | log 顯示 LOCAL_ANALYZER_TEMPERATURE: '0.6' |
+| temperature set (任何) | yes | temperature': 0.0 (action selection) |
 | context window set | yes | ANALYZER_CONTEXT_WINDOW = 32768 |
 | vLLM server started | yes | vLLM server ready |
 
-## Outcome Analysis
+## 結果分析
 
-LB ERROR. The kernel failed during the commit run, before the solver could execute. The temperature patch was claimed but never fired.
+LB ERROR。Kernel 在 commit run 階段失敗，solver 沒機會跑。Temperature patch 聲稱有但從未 fire。
 
-Patch verification (4-layer check per §7):
-1. Syntax: notebook source contains the patch code. PASS.
-2. Semantic: stdout should contain a marker print confirming `LOCAL_ANALYZER_TEMPERATURE='0.3'`. FAIL. The actual stdout shows `LOCAL_ANALYZER_TEMPERATURE: '0.6'`.
-3. Behavioral: vLLM should launch with temperature 0.3. NOT REACHED (kernel ERROR'd).
-4. Result: events.jsonl should show temperature 0.3 in solver config. NOT REACHED.
+Patch 驗證 (4 層檢查 per §7)：
+1. Syntax：notebook source 含 patch code。PASS。
+2. Semantic：stdout 應該含確認 `LOCAL_ANALYZER_TEMPERATURE='0.3'` 的 marker print。FAIL。實際 stdout 顯示 `LOCAL_ANALYZER_TEMPERATURE: '0.6'`。
+3. Behavioral：vLLM 應該以 temperature 0.3 啟動。NOT REACHED (kernel ERROR)。
+4. Result：events.jsonl 應該顯示 solver config 中 temperature 0.3。NOT REACHED。
 
-The 4-layer check caught what the worklog initially missed. The worklog entry for V14 said "v9 + low temperature," but the actual run never applied the patch.
+4 層檢查抓到 worklog 一開始漏掉的事。V14 的 worklog 條目寫「v9 + low temperature」，但實際 run 從未套用 patch。
 
-Root cause: the env var was set in the wrong cell. Cell 5 (pre-setup) should have set it, but the cell instead set it after Cell 6 (TAAF setup) had already captured the default. The fix would be to move the env var assignment to the top of Cell 5, before the TAAF setup command runs.
+根因：env var 設定在錯的 cell。Cell 5 (pre-setup) 應該設它，但 cell 反而在 Cell 6 (TAAF setup) 已經擷取預設值之後才設。修法是把 env var 指派移到 Cell 5 頂部，在 TAAF setup command 跑之前。
 
-This was never fixed. V15 onwards kept temperature at 0.6. The temperature experiment remains unfinished.
+這個修復從未做。V15 之後 temperature 維持 0.6。Temperature 實驗仍未完成。
 
-Key learning: a patch that passes syntax check (layer 1) can still fail semantic check (layer 2). The 4-layer verification is necessary, not optional.
+關鍵學習：通過 syntax check (第 1 層) 的 patch 仍可能在 semantic check (第 2 層) 失敗。4 層驗證是必要的，不是選配。
 
-## Next Version Plan
+## 下一版計畫
 
-V15 will fork `dvm`'s kernel to observe how another team handles vLLM startup. Temperature experiment deferred.
+V15 fork `dvm` 的 kernel 來觀察另一隊怎麼處理 vLLM 啟動。Temperature 實驗延後。

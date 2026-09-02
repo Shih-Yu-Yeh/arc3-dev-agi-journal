@@ -1,10 +1,10 @@
 +++
-title = "ARC3 Day 0: Stub Baseline - Kaggle Code Competition Rerun Pipeline First Contact"
+title = "ARC3 Day 0 (ERROR): Stub Baseline — Kaggle Code Competition Rerun Pipeline 初體驗"
 date = 2026-07-31T08:03:00+08:00
 draft = false
 tags = ["ARC3", "ARC-AGI-3", "Kaggle", "pipeline"]
 categories = ["ARC3 Dev Journal"]
-summary = "First submission. Stub baseline with file_name param. Failed with ERROR. Learned the commit run vs submission rerun distinction."
+summary = "首次提交。Stub baseline 帶 file_name 參數。回傳 ERROR。學會 commit run 與 submission rerun 的差別。"
 lb_score = "ERROR"
 version = "Stub"
 status = "ERROR"
@@ -12,54 +12,54 @@ status = "ERROR"
 
 ## TL;DR
 
-First submission. Stub baseline with file_name param. Failed with ERROR. Learned the commit run vs submission rerun distinction.
+首次提交。Stub baseline 帶 file_name 參數。回傳 ERROR。學會 commit run 與 submission rerun 的差別。
 
 ## Context
 
-ARC-AGI-3 is a Kaggle code competition, not a research competition. The submission pipeline has two stages: (1) a commit run that runs the notebook end-to-end on the public 25 games and produces submission.parquet; (2) a hidden rerun where Kaggle's internal gateway serves 110 hidden games via `http://gateway:8001/api/games`.
+ARC-AGI-3 是 Kaggle code competition，不是 research competition。提交流程分兩階段：(1) commit run 在公開 25 個遊戲上跑通 notebook，產出 submission.parquet；(2) hidden rerun 由 Kaggle 內部 gateway (`http://gateway:8001/api/games`) 提供 110 個 hidden games 重新執行計分。
 
-This stub was meant to test pipeline mechanics: kernel push, commit run, submission, LB appearance. I expected it to fail; the question was where.
+這個 stub 用來測試 pipeline 機制：kernel push、commit run、submission、LB 顯示。預期會失敗，問題是失敗在哪。
 
-## Technical Choice
+## 技術選擇
 
-Used the simplest possible submission.parquet format: a single row with `file_name` parameter set. No solver, no vLLM, no model. Just a Python cell that writes one parquet row.
+使用最簡單的 submission.parquet 格式：一列資料帶 `file_name` 參數。沒有 solver、沒有 vLLM、沒有 model。只是一個 Python cell 寫出一列 parquet。
 
-The choice was deliberate: minimize moving parts to isolate pipeline issues from solver issues.
+刻意選最簡配置：把 pipeline 問題與 solver 問題隔開來看。
 
-## Parameter Decisions
+## 參數決策
 
-| Parameter | Value | Rationale |
+| 參數 | 值 | 理由 |
 |---|---|---|
-| submission format | 1 row, file_name param | Minimal test |
-| solver | none | Isolate pipeline from solver |
-| model | none | Skip vLLM startup |
-| GPU | T4 (default) | Cheapest available |
+| submission 格式 | 1 列, file_name 參數 | 最小測試 |
+| solver | 無 | 隔離 pipeline 與 solver |
+| model | 無 | 跳過 vLLM 啟動 |
+| GPU | T4 (預設) | 最便宜 |
 
 ## Local vs LB Score
 
-- Local mean: n/a (no solver)
-- Baseline (previous version): n/a
+- Local mean: n/a (無 solver)
+- Baseline (上一版): n/a
 - Local delta: n/a
 - LB score: **ERROR**
 
-## Patch Verification
+## Patch 驗證
 
-| Patch | Fired? | Marker |
+| Patch | 是否 fire? | Marker |
 |---|---|---|
-| (none - stub) | n/a | n/a |
+| (無 - stub) | n/a | n/a |
 
-## Outcome Analysis
+## 結果分析
 
-The submission returned ERROR status. Root cause: the `file_name` parameter was not a valid submission column for ARC-AGI-3. The competition expects `row_id`, `game_id`, `end_of_game`, `score` columns.
+提交回傳 ERROR。根因：`file_name` 參數不是 ARC-AGI-3 合法的 submission 欄位。競賽要求 `row_id`、`game_id`、`end_of_game`、`score` 四個欄位。
 
-Two learnings from this failure:
+兩個學習：
 
-First, the Kaggle code competition rerun pipeline is strict about submission.parquet schema. A 1-row stub works for research competitions but not for code competitions with hidden rerun.
+第一，Kaggle code competition rerun pipeline 對 submission.parquet schema 很嚴格。研究型競賽能用的 1 列 stub 在 code competition with hidden rerun 不能用。
 
-Second, the commit run vs submission rerun distinction matters. The commit run completed successfully (the notebook ran end-to-end and wrote submission.parquet). The submission rerun then failed because the schema was wrong. These are two separate failure modes that require two separate checks.
+第二，commit run 與 submission rerun 是兩個獨立的失敗點。commit run 成功 (notebook 跑通並寫出 submission.parquet)，但 submission rerun 因 schema 錯誤而失敗。需要分開檢查。
 
-The next submission (V2) would use the correct schema and a real solver.
+下一版 (V2) 會改用正確 schema 並加上真實 solver。
 
-## Next Version Plan
+## 下一版計畫
 
-Switch to the Tufa Labs duck harness fork. Use the correct submission.parquet schema (`row_id`, `game_id`, `end_of_game`, `score`). Expect LB 0.5-1.5 based on Tufa Labs' self-reported variance.
+改用 Tufa Labs duck harness fork。使用正確的 submission.parquet schema (`row_id`、`game_id`、`end_of_game`、`score`)。預期 LB 0.5-1.5（依 Tufa Labs 自報的變動範圍）。

@@ -4,112 +4,112 @@ date = 2026-08-01T00:00:00+08:00
 draft = false
 +++
 
-# Lessons Learned — 33 Days, 21 Submissions, 33 Private Versions
+# Lessons Learned — 33 天，21 次提交，33 個私下版本
 
-## Development Constitution v2.0 (16 Rules)
+## 開發憲法 v2.0 (16 條)
 
-A living document, updated after each submission. The rules that prevented regressions are bolded; the rules learned from regressions are marked.
+活的文件，每次提交後更新。防止退步的規則粗體；從退步中學到的規則標記。
 
-### Process Rules
+### 流程規則
 
-**§1.** Local dry-run is a mandatory pre-step before every push. No exceptions, even for "one-line fixes."
+**§1.** 本地 dry-run 是每次 push 前的強制步驟。無例外，連「一行修復」也算。
 
-**§2.** One variable per version. V6 broke this rule (context budget + offline env_dir fix) and regressed -0.31 LB. The cause was unattributable.
+**§2.** 一個版本只改一個變數。V6 違反這條 (context budget + offline env_dir fix) 並退步 -0.31 LB。原因無法歸因。
 
-**§3.** Never write bare `except Exception: pass`. V31's `system prompt injection failed (non-fatal)` silently disabled every module for the entire 9-hour run.
+**§3.** 永遠不寫 bare `except Exception: pass`。V31 的 `system prompt injection failed (non-fatal)` 靜默地停用了每個 module 整個 9 小時 run。
 
-**§4.** Verify event contents, not just event counts. V31 had 1348 events. None mentioned NOOA. The "modules installed" log was a lie.
+**§4.** 驗證 event 內容，不只驗 event count。V31 有 1348 個 events。沒有一個提到 NOOA。「modules installed」log 是假的。
 
-**§5.** Every patch must emit a marker print. A patch that silently applies cannot be debugged.
+**§5.** 每個 patch 必須 emit 一個 marker print。靜默套用的 patch 無法 debug。
 
-**§6.** Run `kaggle kernels output` AND fetch `kernel_log.json` via `/api/v1/kernels/output` API. The two cover different artifacts.
+**§6.** 同時跑 `kaggle kernels output` 與透過 `/api/v1/kernels/output` API 取 `kernel_log.json`。兩者涵蓋不同 artifacts。
 
-### Validation Rules
+### 驗證規則
 
-**§7.** Patch verification is a 4-layer check:
-1. Syntax: notebook source contains the patch code.
-2. Semantic: stdout contains the expected marker print.
-3. Behavioral: vLLM / solver launched with the patched config.
-4. Result: events.jsonl shows the patch had effect.
+**§7.** Patch 驗證是 4 層檢查：
+1. Syntax：notebook source 含 patch code。
+2. Semantic：stdout 含預期 marker print。
+3. Behavioral：vLLM / solver 以 patched config 啟動。
+4. Result：events.jsonl 顯示 patch 有效果。
 
-V14 passed layers 1-2 but failed layer 3 (temperature never written). V31 passed layers 1-2 but failed layer 4 (NOOA never executed).
+V14 通過第 1-2 層但失敗第 3 層 (temperature 從未寫入)。V31 通過第 1-2 層但失敗第 4 層 (NOOA 從未執行)。
 
-**§8.** Local mean is not LB score. Always submit to LB before drawing conclusions.
+**§8.** Local mean 不是 LB score。永遠在結論前提交到 LB。
 
-**§9.** Local mean improvement on public games does not transfer to hidden games. V35.2 local +29% vs V24, LB -38% vs V24.
+**§9.** 在公開遊戲上的 local mean 改善不會轉移到 hidden games。V35.2 local +29% vs V24，LB -38% vs V24。
 
-### Technical Rules
+### 技術規則
 
-**§10.** Use `frame[-1]`, not `frame[0]`. The first frame of a film strip is not the final board state. On `ls20`, they differ by 4012 of 4096 cells. (Source: busyaprime kernel)
+**§10.** 用 `frame[-1]`，不用 `frame[0]`。Film strip 的第一 frame 不是最終盤面狀態。在 `ls20` 上，它們差 4096 個 cell 中的 4012 個。(來源：busyaprime kernel)
 
-**§11.** Do not trust `available_actions` as a liveness signal. The engine returns an empty frame after game over, but `available_actions` stays full. 2364 of 5000 random steps were blind. (Source: busyaprime kernel)
+**§11.** 不要信 `available_actions` 當 liveness signal。Engine 在遊戲結束後回空 frame，但 `available_actions` 維持全滿。5000 個 random steps 中有 2364 個是盲的。(來源：busyaprime kernel)
 
-**§12.** Always pass `x` and `y` to `ACTION6`. Without coordinates, 5 of 25 games raise `KeyError` inside game code. (Source: busyaprime kernel)
+**§12.** 永遠傳 `x` 和 `y` 給 `ACTION6`。沒帶座標時，25 個遊戲中有 5 個會在遊戲 code 內 raise `KeyError`。(來源：busyaprime kernel)
 
-**§13.** Do not assume level order equals difficulty order. `baseline_actions` peaks at the last level in only 7 of 25 games. (Source: busyaprime kernel)
+**§13.** 不要假設 level order 等於 difficulty order。`baseline_actions` 只在 25 個遊戲中的 7 個在最後一個 level 達到峰值。(來源：busyaprime kernel)
 
-**§14.** Use writable bundle copy. `/kaggle/input/` is read-only. V11 died at `OSError: [Errno 30] Read-only file system`.
+**§14.** 用 writable bundle copy。`/kaggle/input/` 是 read-only。V11 死在 `OSError: [Errno 30] Read-only file system`。
 
-### Resource Rules
+### 資源規則
 
-**§15.** Weekly GPU quota planning. 30h/week. V35 cycle burned 325h wallclock (vs V24's 60h) due to modules causing infinite loops.
+**§15.** 每週 GPU quota 規劃。每週 30 小時。V35 cycle 燒了 325 小時 wallclock (V24 的 60 小時)，因 modules 造成無限迴圈。
 
-**§16.** Hidden games are air-gapped. No public API exposes them. The only way to learn hidden game behavior is to instrument your own submissions with a level-probe graft.
+**§16.** Hidden games 是 air-gapped 的。沒有公開 API 暴露它們。學習 hidden game 行為的唯一方法是 instrumentation 自己的提交，用 level-probe graft。
 
 ---
 
-## Five Largest Technical Lessons
+## 5 個最大技術教訓
 
-### 1. Local Mean is Not LB Score
+### 1. Local Mean 不是 LB Score
 
-V35.2 local mean: 6.44 (+29% vs V24 local 4.984).
-V35.2 LB score: 1.59 (-38% vs V24 LB 2.56).
+V35.2 local mean：6.44 (比 V24 local 4.984 +29%)。
+V35.2 LB score：1.59 (比 V24 LB 2.56 -38%)。
 
-Modules that improve performance on the 6 familiar public games hurt performance on the 85 unfamiliar hidden games. The hidden game distribution is adversarial to directive-driven behavior.
+改善 6 個熟悉公開遊戲效能的 modules 傷害了 85 個不熟悉 hidden games 的效能。Hidden game 分佈對 directive-driven 行為是對抗性的。
 
-### 2. Every Module Addition Regressed LB
+### 2. 每個 module 加法都退步 LB
 
-| Version | Module Type | Local Δ | LB Δ vs V24 |
-|---------|-------------|---------|--------------|
+| 版本 | Module 類型 | Local Δ | LB Δ vs V24 |
+|------|-------------|---------|--------------|
 | V25 | 7 TAAF grafts | n/a | -1.14 |
 | V33 | NOOA v2 | n/a | -1.05 |
 | V34 | NOOA v3 | n/a | -0.32 |
-| V35.1 | 6 custom modules | n/a | -0.97 |
-| V35.2 | 6 custom modules (fixed) | +29% | -0.97 |
+| V35.1 | 6 個 custom modules | n/a | -0.97 |
+| V35.2 | 6 個 custom modules (修復) | +29% | -0.97 |
 
-Tufa Labs' empirical claim that "hand-crafted tools degrade model performance" holds for ARC-AGI-3.
+Tufa Labs 經驗上「hand-crafted tools degrade model performance」對 ARC-AGI-3 成立。
 
-### 3. V31 Phantom Modules
+### 3. V31 幻影 Modules
 
-V31's stdout claimed `7 modules installed`. Reality: 0 modules executed.
+V31 stdout 宣稱 `7 modules installed`。實際：0 個 modules 執行。
 
-Root cause: `solver._system_prompt` attribute did not exist on `HarnessSolver`. The system prompt injection code crashed with `AttributeError`, which was caught by a bare `except Exception: pass`. Modules loaded but had no injection point.
+根因：`solver._system_prompt` 屬性在 `HarnessSolver` 上不存在。System prompt 注入 code 崩潰 raise `AttributeError`，被 bare `except Exception: pass` 接住。Modules 載入但沒有注入點。
 
-Detection: grep events.jsonl for "NOOA" — V31 had 0 mentions, V32 (fixed) had 469.
+偵測：grep events.jsonl 找「NOOA」— V31 有 0 個，V32 (修復) 有 469 個。
 
 ### 4. V35.1 UnboundLocalError x 2443
 
 ```python
 def step_env(...):
     if some_condition:
-        _v35_last_level = current_level  # assignment makes it local
-    # ...later...
-    if _v35_last_level != current_level:  # UnboundLocalError if branch not taken
+        _v35_last_level = current_level  # 指派讓它變 local
+    # ...後面...
+    if _v35_last_level != current_level:  # branch 沒走時 UnboundLocalError
         ...
 ```
 
-Fix: `nonlocal _v35_last_level` at the top of `step_env`.
+修法：在 `step_env` 頂部加 `nonlocal _v35_last_level`。
 
-This bug is harder to catch than logic bugs because:
-- The kernel still completed (exceptions caught).
-- stdout was 624 KB (vs 134 KB for V24) — full of error noise.
-- LB returned a real score (1.59), so the submission looked "successful."
+這個 bug 比邏輯 bug 難抓因為：
+- Kernel 仍完成 (例外被接住)。
+- stdout 是 624 KB (V24 的 134 KB)—滿是錯誤雜訊。
+- LB 回真實分數 (1.59)，所以提交看起來「成功」。
 
-Detection: grep stdout for `UnboundLocalError`. V35.1: 2443 hits. V35.2: 0 hits.
+偵測：grep stdout 找 `UnboundLocalError`。V35.1：2443 hits。V35.2：0 hits。
 
-### 5. MULTIMODAL_UPSCALE=8 was the Decisive Move
+### 5. MULTIMODAL_UPSCALE=8 是決定性一擊
 
-V23 (LB 1.53) and V24 (LB 2.56) differ by exactly one change:
+V23 (LB 1.53) 與 V24 (LB 2.56) 差一個改動：
 
 ```python
 # V23
@@ -119,32 +119,32 @@ V23 (LB 1.53) and V24 (LB 2.56) differ by exactly one change:
 'MULTIMODAL_UPSCALE': '8',
 ```
 
-Local mean: V23 3.008, V24 4.984 (+66%). LB: V23 1.53, V24 2.56 (+67%).
+Local mean：V23 3.008，V24 4.984 (+66%)。LB：V23 1.53，V24 2.56 (+67%)。
 
-Vision resolution matters more than reasoning effort, context window size, or module sophistication for ARC-AGI-3. The 512x512 grid rendering preserves sub-cell patterns that 256x256 loses.
+對 ARC-AGI-3 來說，vision resolution 比 reasoning effort、context window size、module sophistication 都重要。512x512 grid rendering 保留了 256x256 丟失的 sub-cell pattern。
 
 ---
 
-## What Did Not Work
+## 沒有效的方案
 
-| Approach | Version | Outcome | Diagnosis |
-|----------|---------|---------|-----------|
-| Context budget 32768 → 49152 | V6 | -0.31 LB | Larger context dilutes attention on small boards |
-| Temperature 0.6 → 0.3 | V14 | ERROR | Patch never wrote the env var; kernel ERROR'd on unrelated issue |
-| 2-pass visible updates | V21 | 0.00 LB | submission.parquet was 3411-byte dummy; pipeline issue |
-| 7 TAAF grafts on top of V24 | V25 | -1.14 LB | Lost FP8 KV, WBC, RE, NG vs V24 |
-| Text-only ablation | V28 | -0.84 LB | Hidden games prefer image modality |
-| NOOA v2 (Memory + Supervisor) | V33 | -1.05 LB | Hysteresis logic redirects solver too aggressively |
-| NOOA v3 (V31 done right) | V34 | -0.32 LB | Wiring fixed; modules still net-negative |
-| 6 custom modules + closure bug | V35.1 | -0.97 LB | 2443 UnboundLocalError in step_env |
-| 6 custom modules + syntax fix | V35.2 | -0.97 LB | Modules run correctly; still net-negative |
+| 方案 | 版本 | 結果 | 診斷 |
+|------|------|------|------|
+| Context budget 32768 → 49152 | V6 | -0.31 LB | 更大 context 在小盤面上稀釋注意力 |
+| Temperature 0.6 → 0.3 | V14 | ERROR | Patch 從未寫 env var；kernel 因其他原因 ERROR |
+| 2-pass visible updates | V21 | 0.00 LB | submission.parquet 是 3411 byte dummy；pipeline 問題 |
+| 在 V24 上加 7 TAAF grafts | V25 | -1.14 LB | 比 V24 掉了 FP8 KV、WBC、RE、NG |
+| Text-only ablation | V28 | -0.84 LB | Hidden games 偏好 image modality |
+| NOOA v2 (Memory + Supervisor) | V33 | -1.05 LB | Hysteresis 邏輯太激進地 redirect solver |
+| NOOA v3 (V31 done right) | V34 | -0.32 LB | Wiring 修了；modules 仍淨負面 |
+| 6 個 custom modules + closure bug | V35.1 | -0.97 LB | step_env 有 2443 個 UnboundLocalError |
+| 6 個 custom modules + syntax 修復 | V35.2 | -0.97 LB | Modules 正確跑；仍淨負面 |
 
-## What Worked
+## 有效的方案
 
-| Approach | Version | Outcome | Why |
-|----------|---------|---------|-----|
-| Tufa Labs duck harness fork | V2 | 0.87 LB | Solid base; 5-step cycle is sound |
-| Program synthesis prompt | V4 | +0.19 LB | Encourages structured tool calls |
-| Qwen3.8-27B-FP8 upgrade | V17 | +0.63 LB | Better tool-call accuracy than Qwen3.6 |
-| Anim bundle + wheelhouse fix | V23 | +1.53 LB | Animation-awareness matters |
-| MULTIMODAL_UPSCALE 4 → 8 | V24 | +1.03 LB | Vision resolution is the bottleneck |
+| 方案 | 版本 | 結果 | 為什麼 |
+|------|------|------|--------|
+| Tufa Labs duck harness fork | V2 | 0.87 LB | 穩固基礎；5 步循環健全 |
+| Program synthesis prompt | V4 | +0.19 LB | 鼓勵結構化 tool call (但 V9 ablation 顯示其實 -0.04) |
+| Qwen3.8-27B-FP8 升級 | V17 | +0.63 LB | 比 Qwen3.6 更好的 tool-call 準確度 |
+| Anim bundle + wheelhouse 修復 | V23 | +1.53 LB | Animation-awareness 重要 |
+| MULTIMODAL_UPSCALE 4 → 8 | V24 | +1.03 LB | Vision resolution 是瓶頸 |

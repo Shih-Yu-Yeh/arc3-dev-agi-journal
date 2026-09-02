@@ -1,10 +1,10 @@
 +++
-title = "ARC3 V10 (LB 0.79): Rokaiya Pure Baseline - Deliberate Regression for Calibration"
+title = "ARC3 V10 (LB 0.79): Rokaiya 純 Baseline — 故意退回原點的 Calibration Run"
 date = 2026-08-09T01:09:00+08:00
 draft = false
 tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-6", "baseline", "calibration"]
 categories = ["ARC3 Dev Journal"]
-summary = "Deliberately stripped all patches, grafts, and prompt addenda. LB 0.79. Calibration baseline to measure the absolute floor of the TAAF harness."
+summary = "刻意拿掉所有 patch、graft、prompt addendum。LB 0.79。Calibration baseline，量測 TAAF harness 的絕對地板。"
 lb_score = "0.79"
 version = "V10"
 status = "CALIBRATION"
@@ -12,61 +12,61 @@ status = "CALIBRATION"
 
 ## TL;DR
 
-Deliberately stripped all patches, grafts, and prompt addenda. LB 0.79. Calibration baseline to measure the absolute floor of the TAAF harness.
+刻意拿掉所有 patch、graft、prompt addendum。LB 0.79。Calibration baseline，量測 TAAF harness 的絕對地板。
 
 ## Context
 
-After V9's controlled comparison, I needed to know the absolute floor. What does the Tufa harness score with zero patches?
+V9 的 controlled comparison 之後，我需要知道絕對地板在哪。Tufa harness 在零 patch 下能得多少分？
 
-V10 deliberately removed: AGI_8 patch, AGI_9 patch, program synthesis prompt, and any grafts. Just the stock TAAF bundle with Qwen3.6-27B-FP8.
+V10 刻意移除：AGI_8 patch、AGI_9 patch、program synthesis prompt、所有 graft。只剩 stock TAAF bundle + Qwen3.6-27B-FP8。
 
-The point was not to improve LB, but to establish a calibration point. Every future patch's contribution could then be measured against this floor.
+重點不是改善 LB，而是建立 calibration 點。未來每個 patch 的貢獻就能對這個地板量測。
 
-## Technical Choice
+## 技術選擇
 
-Used `rokaiyasomapti/arc3-duck-v12-1d7d88-27e1af` as the reference. This kernel was a pure baseline replica without modifications. I forked it to verify that the LB 1.38 the original claimed was reproducible.
+用 `rokaiyasomapti/arc3-duck-v12-1d7d88-27e1af` 當參考。這個 kernel 是純 baseline replica，沒有修改。我 fork 它來驗證原作宣稱的 LB 1.38 是否可重現。
 
-The choice of rokaiya's kernel rather than V2 was deliberate: V2 had the Tufa bundle, but rokaiya's was a cleaner baseline with fewer modifications. If both scored similarly, the floor was confirmed.
+選 rokaiya kernel 而不是 V2 是刻意的：V2 用 Tufa bundle，但 rokaiya 的是更乾淨的 baseline，修改更少。如果兩者得分相近，地板就確認了。
 
-## Parameter Decisions
+## 參數決策
 
-| Parameter | V9 | V10 | Rationale |
+| 參數 | V9 | V10 | 理由 |
 |---|---|---|---|
-| AGI_8 patch | on | off | Strip all patches |
-| AGI_9 patch | on | off | Strip all patches |
-| program synthesis prompt | off | off | Already off in V9 |
-| grafts | none | none | Stock |
-| model | Qwen3.6-27B-FP8 | Qwen3.6-27B-FP8 | unchanged |
+| AGI_8 patch | on | off | 拿掉所有 patch |
+| AGI_9 patch | on | off | 拿掉所有 patch |
+| program synthesis prompt | off | off | V9 已 off |
+| grafts | 無 | 無 | Stock |
+| model | Qwen3.6-27B-FP8 | Qwen3.6-27B-FP8 | 未變 |
 | context window | 32768 | 32768 | Stock |
 
 ## Local vs LB Score
 
-- Local mean: not measured
-- Baseline (previous version): V9 LB 1.10
+- Local mean: 未量測
+- Baseline (上一版): V9 LB 1.10
 - Local delta: n/a
 - LB score: **0.79**
 
-## Patch Verification
+## Patch 驗證
 
-| Patch | Fired? | Marker |
+| Patch | 是否 fire? | Marker |
 |---|---|---|
 | temperature set | yes | temperature': 0.0 |
 | context window set | yes | ANALYZER_CONTEXT_WINDOW = 32768 |
 | vLLM server started | yes | vLLM server ready |
 | give-up mechanism | yes | max_runtime |
 
-## Outcome Analysis
+## 結果分析
 
-LB 0.79. The calibration floor.
+LB 0.79。Calibration 地板。
 
-The rokaiya kernel was supposed to score 1.38, but my fork scored 0.79. The 0.59 gap is attributable to two factors:
+rokaiya kernel 應該得 1.38，但我的 fork 得 0.79。0.59 的差距歸因於兩個因素：
 
-First, rokaiya's claimed 1.38 may have been a single high-variance rerun, not a reproducible result. Hidden rerun variance can swing ±0.3 LB on identical code.
+第一，rokaiya 宣稱的 1.38 可能是單次高變動 rerun，不是可重現的結果。Hidden rerun variance 在相同 code 上可擺動 ±0.3 LB。
 
-Second, my fork used the `jeroencottaar/taaf-kaggle-source-share` bundle, while rokaiya's may have used a slightly different commit. The TAAF bundle has multiple forks with subtle differences.
+第二，我的 fork 用 `jeroencottaar/taaf-kaggle-source-share` bundle，而 rokaiya 可能用了 commit 略有不同的 bundle。TAAF bundle 有多個 fork，差異微妙。
 
-The 0.79 floor is now the calibration point. V9's 1.10 is +0.31 over the floor, attributable to AGI_8+AGI_9 patches. V4's 1.06 is +0.27 over the floor, attributable to AGI_8+AGI_9 minus the synthesis prompt's -0.04 net effect.
+0.79 地板現在是 calibration 點。V9 的 1.10 是地板 +0.31，歸因於 AGI_8+AGI_9 patches。V4 的 1.06 是地板 +0.27，歸因於 AGI_8+AGI_9 減去 synthesis prompt 的 -0.04 淨效果。
 
-## Next Version Plan
+## 下一版計畫
 
-V11 was a private fork attempt that ERROR'd (competition wheelhouse not found). V12 was a Tufa milestone fork. V13 will use registration-only mode to skip the 9h commit and let the hidden rerun produce the real score.
+V11 是私下 fork 嘗試，ERROR (competition wheelhouse 找不到)。V12 是 Tufa milestone fork。V13 會用 registration-only mode 跳過 9h commit，讓 hidden rerun 產出真分。

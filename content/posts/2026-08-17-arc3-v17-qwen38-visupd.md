@@ -1,10 +1,10 @@
 +++
-title = "ARC3 V17 (LB 1.43): Qwen3.8-27B-FP8 + Visual Updates - First Breakthrough Above 1.10"
+title = "ARC3 V17 (LB 1.43): Qwen3.8-27B-FP8 + Visual Updates — 突破 1.10 天花板"
 date = 2026-08-17T07:12:00+08:00
 draft = false
 tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "FP8", "visual-updates"]
 categories = ["ARC3 Dev Journal"]
-summary = "Upgraded from Qwen3.6-27B-FP8 to Qwen3.8-27B-FP8. Added visual update mechanism. LB 1.43, +0.33 over V15. First breakthrough above the 1.10 ceiling."
+summary = "從 Qwen3.6-27B-FP8 升級到 Qwen3.8-27B-FP8。加 visual update 機制。LB 1.43，比 V15 +0.63。首次突破 1.10 天花板。"
 lb_score = "1.43"
 version = "V17"
 status = "BREAKTHROUGH"
@@ -12,48 +12,48 @@ status = "BREAKTHROUGH"
 
 ## TL;DR
 
-Upgraded from Qwen3.6-27B-FP8 to Qwen3.8-27B-FP8. Added visual update mechanism. LB 1.43, +0.33 over V15. First breakthrough above the 1.10 ceiling.
+從 Qwen3.6-27B-FP8 升級到 Qwen3.8-27B-FP8。加 visual update 機制。LB 1.43，比 V15 +0.63。首次突破 1.10 天花板。
 
 ## Context
 
-V9-V15 had been stuck in the 0.79-1.10 range. The Qwen3.6 model had reached its ceiling. Two changes were needed: a better model and a better way to feed visual state.
+V9-V15 一直卡在 0.79-1.10 區間。Qwen3.6 model 已到天花板。需要兩個改動：更好的 model 與更好的視覺狀態餵法。
 
-Qwen3.8-27B-FP8 was released in early August 2026 with improved tool-call accuracy. The `jakobbrggen/taaf-kaggle-source-anim-20260807-anim` bundle had also just been published, with animation-awareness and visual update support.
+Qwen3.8-27B-FP8 在 2026 年 8 月初發布，tool-call 準確度提升。`jakobbrggen/taaf-kaggle-source-anim-20260807-anim` bundle 也剛發布，含 animation-awareness 與 visual update 支援。
 
-V17 stacked both changes. This violates §2 (one variable per version), but the model upgrade was the dominant hypothesis.
+V17 疊了兩個改動。違反 §2 (一個版本只改一個變數)，但 model 升級是主要假設。
 
-## Technical Choice
+## 技術選擇
 
-Model upgrade: Qwen3.6-27B-FP8 to Qwen3.8-27B-FP8 (`jakobbrggen/qwen3-8-27b-fp8-hf-snapshot`). Qwen3.8 has better tool-call parsing (`qwen3_coder` parser) and improved reasoning_effort control.
+Model 升級：Qwen3.6-27B-FP8 → Qwen3.8-27B-FP8 (`jakobbrggen/qwen3-8-27b-fp8-hf-snapshot`)。Qwen3.8 有更好的 tool-call parsing (`qwen3_coder` parser) 與 reasoning_effort 控制。
 
-Visual updates: switched to `jakobbrggen/taaf-kaggle-source-anim-20260807-anim` bundle. This bundle includes animation-awareness, which detects when the game board is mid-animation and waits for the final state before reading.
+Visual updates：切到 `jakobbrggen/taaf-kaggle-source-anim-20260807-anim` bundle。這個 bundle 含 animation-awareness，能偵測遊戲盤面是否在動畫中，等到最終狀態才讀。
 
-Three patches verified firing:
-- Qwen3.8 model loaded (confirmed in vLLM startup log: `--model /kaggle/input/datasets/jakobbrggen/qwen3-8-27b-fp8-hf-snapshot`)
-- Noop guard verified (`hard_noop_guard = True`)
-- Visual updates mechanism loaded (anim bundle imported)
+三個已驗證 fire 的 patch：
+- Qwen3.8 model 載入 (vLLM 啟動 log 確認：`--model /kaggle/input/datasets/jakobbrggen/qwen3-8-27b-fp8-hf-snapshot`)
+- Noop guard 驗證 (`hard_noop_guard = True`)
+- Visual updates 機制載入 (anim bundle imported)
 
-## Parameter Decisions
+## 參數決策
 
-| Parameter | V15 | V17 | Rationale |
+| 參數 | V15 | V17 | 理由 |
 |---|---|---|---|
-| model | Qwen3.6-27B-FP8 | Qwen3.8-27B-FP8 | Better tool-call accuracy |
+| model | Qwen3.6-27B-FP8 | Qwen3.8-27B-FP8 | 更好的 tool-call 準確度 |
 | source bundle | dvm fork | jakobbrggen anim bundle | Animation-awareness |
-| tool call parser | qwen3 | qwen3_coder | Qwen3.8 native |
-| reasoning parser | qwen3 | qwen3 | unchanged |
-| temperature | 0.6 | 0.6 | unchanged |
-| MULTIMODAL_UPSCALE | 4 | 4 | unchanged (V24 will upgrade) |
+| tool call parser | qwen3 | qwen3_coder | Qwen3.8 原生 |
+| reasoning parser | qwen3 | qwen3 | 未變 |
+| temperature | 0.6 | 0.6 | 未變 |
+| MULTIMODAL_UPSCALE | 4 | 4 | 未變 (V24 才升級) |
 
 ## Local vs LB Score
 
-- Local mean: not measured
-- Baseline (previous version): V15 LB 0.80
+- Local mean: 未量測
+- Baseline (上一版): V15 LB 0.80
 - Local delta: n/a
 - LB score: **1.43**
 
-## Patch Verification
+## Patch 驗證
 
-| Patch | Fired? | Marker |
+| Patch | 是否 fire? | Marker |
 |---|---|---|
 | Qwen3.8 model loaded | yes | Qwen/Qwen3.8-27B-FP8 |
 | noop guard verified | yes | hard_noop_guard = True |
@@ -62,18 +62,18 @@ Three patches verified firing:
 | vLLM server started | yes | vLLM server ready |
 | give-up mechanism | yes | max_runtime |
 
-## Outcome Analysis
+## 結果分析
 
-LB 1.43, +0.63 over V15's 0.80. First breakthrough above the 1.10 ceiling.
+LB 1.43，比 V15 的 0.80 +0.63。首次突破 1.10 天花板。
 
-Attribution is impossible because both changes (model + bundle) stacked. But circumstantial evidence:
+歸因不可能，因為兩個改動 (model + bundle) 疊在一起。但旁證：
 
-- Qwen3.8 has better tool-call accuracy per the release notes. This matters for ARC-AGI-3 because the solver issues many structured tool calls per action.
-- The anim bundle's animation-awareness prevents reading mid-animation frames. Without this, the solver may see a partial state and issue wrong actions.
-- `hard_noop_guard = True` was set by the anim bundle, not by my patches. This is the first version where noop guard was verified.
+- Qwen3.8 有更好的 tool-call 準確度 (per release notes)。對 ARC-AGI-3 重要，因為 solver 每個動作要發很多結構化 tool call。
+- Anim bundle 的 animation-awareness 防止讀到動畫中的盤面。沒有這個，solver 可能看到部分狀態而發錯動作。
+- `hard_noop_guard = True` 是 anim bundle 設的，不是我的 patch。這是第一次 noop guard 被驗證。
 
-The 0.63 improvement likely comes from all three: model upgrade + animation-awareness + noop guard. The dominant contributor is probably the model upgrade, but this cannot be confirmed without a controlled ablation.
+0.63 改善可能來自三者：model 升級 + animation-awareness + noop guard。主要貢獻者可能是 model 升級，但無法確認，需要 controlled ablation。
 
-## Next Version Plan
+## 下一版計畫
 
-V18 was a private jakob q38 pure test. V19 will add the P2+P3 patches (FP8 KV cache, noop guard wrapper, reasoning effort cap) on top of V17's Qwen3.8 config.
+V18 是私下 jakob q38 pure 測試。V19 會在 V17 的 Qwen3.8 config 上加 P2+P3 patches (FP8 KV cache、noop guard wrapper、reasoning effort cap)。
