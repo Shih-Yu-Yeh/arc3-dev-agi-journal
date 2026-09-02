@@ -2,7 +2,7 @@ baseURL = "https://ocean240812.github.io/arc3-dev-agi-journal/"
 languageCode = "en-us"
 title = "ARC3 Dev Journal"
 theme = "PaperMod"
-pagination.pagerSize = 20
+pagination.pagerSize = 25
 enableRobotsTXT = true
 enableEmoji = false
 
