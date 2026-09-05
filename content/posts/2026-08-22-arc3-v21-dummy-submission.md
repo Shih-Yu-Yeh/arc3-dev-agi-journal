@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V21 (LB 0.00): 2-Pass Visible Updates — Dummy 提交事故調查"
+date = 2026-08-22T13:36:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "dummy-submission", "pipeline-failure"]
+categories = ["ARC3 Dev Journal"]
+summary = "9 個 patch 全部 fire，加了 2-pass visible updates。LB 回 0.00，因為 submission.parquet 是 3411 byte 的 dummy。Pipeline 問題，不是 solver 問題。"
+lb_score = "0.00"
+version = "V21"
+status = "PIPELINE_FAILURE"
++++
+
 
 ## Dummy 提交事故
 

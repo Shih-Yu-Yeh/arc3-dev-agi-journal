@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V35.1 (LB 1.59): 6 Modules + 2443 UnboundLocalError — Closure Scope Bug"
+date = 2026-08-31T01:24:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "modules", "closure-bug", "UnboundLocalError"]
+categories = ["ARC3 Dev Journal"]
+summary = "加 6 個 custom modules（ReasoningMemory、ExplorationTracker、HypothesisEngine、TransferMechanism、ReflectionRecovery）。step_env 因缺少 nonlocal 宣告產生 2443 個 UnboundLocalError。LB 1.59，比 V34 -0.65。"
+lb_score = "1.59"
+version = "V35.1"
+status = "BUG"
++++
+
 
 ## 2443 次 UnboundLocalError 是怎麼藏住的
 

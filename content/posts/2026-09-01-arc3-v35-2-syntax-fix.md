@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V35.2 (LB 1.59): 修對了 Syntax，LB 沒變 — Modules 是 Net-Negative"
+date = 2026-09-01T03:38:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "modules", "net-negative"]
+categories = ["ARC3 Dev Journal"]
+summary = "修了 UnboundLocalError（0 個錯誤）。6 個 modules 正確跑（10 個 experiment events）。LB 1.59，跟 V35.1 broken 分數相同。Modules 確認是淨負面。"
+lb_score = "1.59"
+version = "V35.2"
+status = "CONFIRMED_NET_NEGATIVE"
++++
+
 
 ## 修對了語法，分數沒變
 

@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V17 (LB 1.43): Qwen3.8-27B-FP8 + Visual Updates — 突破 1.10 天花板"
+date = 2026-08-17T07:12:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "FP8", "visual-updates"]
+categories = ["ARC3 Dev Journal"]
+summary = "從 Qwen3.6 升級到 Qwen3.8-27B-FP8。加 anim bundle 的 animation-awareness 與 noop guard。LB 1.43，比 V15 +0.63。首次突破 1.10 天花板。"
+lb_score = "1.43"
+version = "V17"
+status = "BREAKTHROUGH"
++++
+
 
 ## 突破 1.10 天花板
 

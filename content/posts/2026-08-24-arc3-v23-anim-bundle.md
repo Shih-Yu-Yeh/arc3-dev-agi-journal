@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V23 (LB 1.53): Anim Bundle + Qwen3.8 Wheelhouse Fix"
+date = 2026-08-24T01:43:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "anim-bundle"]
+categories = ["ARC3 Dev Journal"]
+summary = "切到 jakobbrggen anim bundle，修 wheelhouse owner，退回 1-pass。LB 1.53，從 V21 的 0.00 恢復並創新個人最佳。"
+lb_score = "1.53"
+version = "V23"
+status = "IMPROVEMENT"
++++
+
 
 ## 從 0.00 恢復
 

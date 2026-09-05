@@ -1,4 +1,15 @@
 +++
+title = "ARC3 Day 0 (ERROR): Stub Baseline — Kaggle Code Competition Rerun Pipeline 初體驗"
+date = 2026-07-31T08:03:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "pipeline"]
+categories = ["ARC3 Dev Journal"]
+summary = "第一次提交。用最簡單的 stub 測 pipeline，回傳 ERROR。學會 commit run 與 hidden rerun 是兩個獨立的失敗點。"
+lb_score = "ERROR"
+version = "Stub"
+status = "ERROR"
++++
+
 
 ## 為什麼從 stub 開始
 

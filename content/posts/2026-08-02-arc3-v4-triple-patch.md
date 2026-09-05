@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V4 (LB 1.06): TAAF + Program Synthesis Prompt Triple-Patch"
+date = 2026-08-02T02:01:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-6", "prompt-engineering"]
+categories = ["ARC3 Dev Journal"]
+summary = "疊了三個 patch：program synthesis prompt、offline env_dir 修復、AGI_8/AGI_9。LB 1.06，比 V2 +0.19。首次改善。"
+lb_score = "1.06"
+version = "V4"
+status = "IMPROVEMENT"
++++
+
 
 ## 第一次加 patch
 

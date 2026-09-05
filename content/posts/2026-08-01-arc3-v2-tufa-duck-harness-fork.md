@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V2 (LB 0.87): Tufa Labs Duck Harness Fork — 我的 ARC3 起點"
+date = 2026-08-01T06:52:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-6"]
+categories = ["ARC3 Dev Journal"]
+summary = "Fork 自 samrishb/sam-solver（Tufa Labs milestone 1.21）。Stock Qwen3.6-27B-FP8，無任何 patch。LB 0.87 落在 Tufa 自報的 0.5-1.5 範圍內。"
+lb_score = "0.87"
+version = "V2"
+status = "BASELINE"
++++
+
 
 ## 起點：fork Tufa
 

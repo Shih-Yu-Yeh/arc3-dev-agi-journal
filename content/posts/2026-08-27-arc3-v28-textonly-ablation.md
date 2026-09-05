@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V28 (LB 1.72): Text-Only Ablation — 證明 Hidden Games 偏好 Image"
+date = 2026-08-27T05:45:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "ablation", "text-only"]
+categories = ["ARC3 Dev Journal"]
+summary = "V24 config，把 MULTIMODAL_CONTEXT 從 image 改成 text。LB 1.72，比 V24 的 2.56 -0.84。證明 hidden games 偏好 image modality。"
+lb_score = "1.72"
+version = "V28"
+status = "ABLATION"
++++
+
 
 ## Text vs Image
 

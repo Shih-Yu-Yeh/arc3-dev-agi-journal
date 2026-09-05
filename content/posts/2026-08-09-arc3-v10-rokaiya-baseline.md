@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V10 (LB 0.79): Rokaiya 純 Baseline — 故意退回原點的 Calibration Run"
+date = 2026-08-09T01:09:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-6", "baseline", "calibration"]
+categories = ["ARC3 Dev Journal"]
+summary = "刻意拿掉所有 patch、graft、prompt addendum。LB 0.79。用來當作絕對地板，後續每個 patch 的貢獻都對這個基準量測。"
+lb_score = "0.79"
+version = "V10"
+status = "CALIBRATION"
++++
+
 
 ## 校準地板
 

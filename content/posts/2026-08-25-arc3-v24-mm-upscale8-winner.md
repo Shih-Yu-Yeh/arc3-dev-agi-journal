@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V24 (LB 2.56): MULTIMODAL_UPSCALE=8 — 從 1.53 到 2.56 的決定性一擊"
+date = 2026-08-25T04:12:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "FP8", "MULTIMODAL_UPSCALE", "winner"]
+categories = ["ARC3 Dev Journal"]
+summary = "單一變數改動：MULTIMODAL_UPSCALE 4 → 8（256x256 → 512x512 vision）。Local mean 4.984（比 V23 +66%）。LB 2.56（比 V23 +1.03）。個人最佳。"
+lb_score = "2.56"
+version = "V24"
+status = "WINNER"
++++
+
 
 ## 為什麼 512x512 比 256x256 好
 

@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V6 (LB 0.75): Context Budget 32768 → 49152 — 過頭的代價 -0.31"
+date = 2026-08-04T02:19:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "context-window", "regression"]
+categories = ["ARC3 Dev Journal"]
+summary = "把 analyzer context window 從 32k 加到 49k tokens（+50%）。Local mean 0.58 預測會改善，LB 卻從 1.06 掉到 0.75（-0.31）。第一次具體看到 local mean 跟 LB score 沒有相關。"
+lb_score = "0.75"
+version = "V6"
+status = "REGRESSION"
++++
+
 
 ## Local +29% 為何 LB -29%
 

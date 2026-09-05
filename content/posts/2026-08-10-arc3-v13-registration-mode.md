@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V13 (LB 0.87): Tanaka Safety v1 + Registration Mode — 跳過 9 小時 Commit 的投機技巧"
+date = 2026-08-10T12:48:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "registration-mode", "pipeline"]
+categories = ["ARC3 Dev Journal"]
+summary = "用 1 列 placeholder submission.parquet 跳過 9 小時 commit run。Hidden rerun 產出真實 LB 0.87。這是 pipeline 技巧，不是 solver 改善。"
+lb_score = "0.87"
+version = "V13"
+status = "PIPELINE_TRICK"
++++
+
 
 ## 跳過 9 小時 commit
 

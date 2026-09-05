@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V14 (ERROR): Temperature 0.3 Patch — 一個靜默失敗的紀錄"
+date = 2026-08-11T10:25:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "temperature", "silent-failure"]
+categories = ["ARC3 Dev Journal"]
+summary = "聲稱把 temperature 從 0.6 降到 0.3。Patch 驗證顯示 temperature 還是 0.6。Kernel 因其他原因 ERROR。Temperature 實驗白做了。"
+lb_score = "ERROR"
+version = "V14"
+status = "SILENT_FAILURE"
++++
+
 
 ## Patch 沒套上的那 4 層
 

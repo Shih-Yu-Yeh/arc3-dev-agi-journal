@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V25 (LB 1.42): 7 Grafts + MM8 — 為何加了 Grafts 反而退步"
+date = 2026-08-26T07:02:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "grafts", "regression"]
+categories = ["ARC3 Dev Journal"]
+summary = "在 V24 上加 7 個 TAAF grafts（winframe、goalkeep、clockwatch、hudmask、clickmap、searchmap、lawbook）。但過程中掉了 FP8 KV、WBC、RE cap、NG。LB 1.42，比 V24 -1.14。"
+lb_score = "1.42"
+version = "V25"
+status = "REGRESSION"
++++
+
 
 ## 加 grafts 為何退步
 

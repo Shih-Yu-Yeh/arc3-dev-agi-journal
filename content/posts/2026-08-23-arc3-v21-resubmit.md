@@ -1,4 +1,15 @@
 +++
+title = "ARC3 V21 RESUBMIT (LB 0.00): 同一坑踩兩次 — Dummy Submission 追蹤"
+date = 2026-08-23T01:12:00+08:00
+draft = false
+tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "dummy-submission", "pipeline-failure"]
+categories = ["ARC3 Dev Journal"]
+summary = "同一份 V21 kernel 重 submit。LB 還是 0.00。確認 dummy submission 問題不是 transient，是 2-pass 實作的真 bug。"
+lb_score = "0.00"
+version = "V21 (resubmit)"
+status = "PIPELINE_FAILURE"
++++
+
 
 ## 同一坑踩兩次
 
