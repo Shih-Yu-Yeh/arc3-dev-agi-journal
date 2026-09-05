@@ -1,32 +1,22 @@
 +++
-title = "ARC3 V6 (LB 0.75): Context Budget 32768 → 49152 — 過頭的代價 -0.31"
-date = 2026-08-04T02:19:00+08:00
-draft = false
-tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "context-window", "regression"]
-categories = ["ARC3 Dev Journal"]
-summary = "把 analyzer context window 從 32k 加到 49k tokens（+50%）。Local mean 0.58 預測會改善，LB 卻從 1.06 掉到 0.75（-0.31）。第一次具體看到 local mean 跟 LB score 沒有相關。"
-lb_score = "0.75"
-version = "V6"
-status = "REGRESSION"
-+++
 
-## 摘要
+## Local +29% 為何 LB -29%
 
 V4 的 context window 是 32768 tokens，vLLM server 跑 `--max-model-len 65536`，中間有 32k 的缺口。我假設更大的 context window 讓 solver 保留更多遊戲歷史，對多 level 遊戲有幫助。Local dry-run 支持這個假設：local mean 從 V4 的 0.45 升到 0.58（+29%）。我 push 到 LB 期待類似改善，結果是相反的——LB 從 1.06 掉到 0.75。
 
-## Context
+## 32k 缺口的假設
 
 V4 的 context window 是 32768 tokens。vLLM server 跑 `--max-model-len 65536`，中間有 32k 的缺口。我假設更大的 context window 讓 solver 保留更多遊戲歷史，對多 level 遊戲有幫助。
 
 Local dry-run 在 6 個公開遊戲上支持這個假設：local mean 從 V4 的 0.45 升到 0.58（+29%）。我 push 到 LB 期待類似改善，結果是相反的。
 
-## 技術選選擇
+## 為什麼選 49152 而不是 65536
 
 單一變數改動：`ANALYZER_CONTEXT_WINDOW = 49152`（原 32768），+50% 增加。其他不動。
 
 選 49152 而不是 65536 是刻意的：留 headroom 給 action prompt 跟 observation tokens。Analyzer context window 在遊戲歷史、system prompt、當前 observation 之間共享，填到 65k 會沒有空間放 response。
 
-## 參數決策
+## 單一變數改動
 
 | 參數 | V4 | V6 | 理由 |
 |---|---|---|---|
@@ -36,14 +26,14 @@ Local dry-run 在 6 個公開遊戲上支持這個假設：local mean 從 V4 的
 | temperature | 0.6 | 0.6 | 未變 |
 | MULTIMODAL_UPSCALE | 4 | 4 | 未變 |
 
-## Local vs LB Score
+## Local 改善但 LB 退步
 
 - Local mean: 0.58
 - Baseline（上一版）: V4 local 0.45
 - Local delta: +0.13（+29%）
 - LB score: **0.75**
 
-## Patch 驗證
+## context window 確實 fire
 
 | Patch | 是否 fire? | Marker |
 |---|---|---|
@@ -53,7 +43,7 @@ Local dry-run 在 6 個公開遊戲上支持這個假設：local mean 從 V4 的
 | submission.parquet written | yes | submission.parquet |
 | give-up mechanism | yes | max_runtime |
 
-## 結果分析
+## 三個可能原因
 
 LB 0.75，比 V4 的 1.06 -0.31。Local mean 改善 +29%，LB 退步 -29%。第一次具體看到 local mean 跟 LB score 沒有相關。
 
@@ -67,6 +57,6 @@ Hidden games 較長。25 個公開遊戲的 `baseline_actions` 總和是 17135�
 
 Local mean 改善是真的，但量測在錯誤的資料分佈上——公開遊戲太短，hidden games 才是真實場景。這是 §9 提到的：在公開遊戲上的 local mean 改善不會轉移到 hidden games。
 
-## 下一版計畫
+## 退回 32768
 
 把 context window 退回 32768（V7 是私下測試）。V9 會重製 yw8837 的 LB-1.17 config 作為 controlled comparison。

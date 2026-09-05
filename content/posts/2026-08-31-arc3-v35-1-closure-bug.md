@@ -1,20 +1,10 @@
 +++
-title = "ARC3 V35.1 (LB 1.59): 6 Modules + 2443 UnboundLocalError — Closure Scope Bug"
-date = 2026-08-31T01:24:00+08:00
-draft = false
-tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "modules", "closure-bug", "UnboundLocalError"]
-categories = ["ARC3 Dev Journal"]
-summary = "加 6 個 custom modules（ReasoningMemory、ExplorationTracker、HypothesisEngine、TransferMechanism、ReflectionRecovery）。step_env 因缺少 nonlocal 宣告產生 2443 個 UnboundLocalError。LB 1.59，比 V34 -0.65。"
-lb_score = "1.59"
-version = "V35.1"
-status = "BUG"
-+++
 
-## 摘要
+## 2443 次 UnboundLocalError 是怎麼藏住的
 
 V34 的 NOOA v3 拿到 2.24 但仍低於 V24 的 2.56。我假設更通用的 module 架構（6 個 modules 涵蓋 explore/hypothesize/verify/transfer/reflect）會勝過 NOOA 的狹窄 memory+supervisor 設計。V35.1 加了 6 個 modules，但 step_env 有個 closure scope bug：`_v35_last_level` 缺少 `nonlocal` 宣告，導致 2443 個 UnboundLocalError。LB 1.59，比 V34 -0.65。
 
-## Context
+## V34 仍低於 V24 的判斷
 
 V34 的 NOOA v3 拿到 2.24 但仍低於 V24 的 2.56。我假設更通用的 module 架構（6 個 modules 涵蓋 explore/hypothesize/verify/transfer/reflect）會勝過 NOOA 的狹窄 memory+supervisor 設計。
 
@@ -28,7 +18,7 @@ V35.1 加了 6 個 modules：
 
 預期 LB 3.0+。結果 LB 1.59，比 V34 -0.65。
 
-## 技術選擇
+## 6 個 modules 的設計
 
 6 個 modules 接進 `step_env`，包 solver 的 `step` 函式。每個 module hook 進 observation-reasoning-action loop：
 
@@ -47,7 +37,7 @@ Bug：`_v35_last_level` 在 `if` branch 內被指派。Python 把它當 local �
 
 ![Closure Scope Bug 示意](/images/v35-1-closure-bug.png)
 
-## 參數決策
+## step_env wrap 的 closure bug
 
 | 參數 | V34 | V35.1 | 理由 |
 |---|---|---|---|
@@ -57,14 +47,14 @@ Bug：`_v35_last_level` 在 `if` branch 內被指派。Python 把它當 local �
 | FP8 KV cache | enabled | enabled | 未變 |
 | model | Qwen3.8-27B-FP8 | Qwen3.8-27B-FP8 | 未變 |
 
-## Local vs LB Score
+## -0.65 vs V34
 
 - Local mean: 未量測
 - Baseline（上一版）: V34 LB 2.24
 - Local delta: n/a
 - LB score: **1.59**
 
-## Patch 驗證
+## modules instantiated 但 step_env BROKEN
 
 | Patch | 是否 fire? | Marker |
 |---|---|---|
@@ -80,7 +70,7 @@ Bug：`_v35_last_level` 在 `if` branch 內被指派。Python 把它當 local �
 | 6 modules instantiated | yes | v35.2: 6 modules instantiated |
 | step_env wrap | BROKEN | 2443 UnboundLocalError in step_env |
 
-## 結果分析
+## 為什麼這個 bug 難抓
 
 LB 1.59，比 V34 的 2.24 -0.65。Kernel 完成（LB 回真實分數），但每次 step_env call 都崩潰，raise `UnboundLocalError: cannot access local variable '_v35_last_level'`。
 
@@ -107,6 +97,6 @@ LB 回真實分數（1.59），所以提交看起來「成功」。
 
 偵測方式：grep stdout 找 `UnboundLocalError`。V35.1 有 2443 hits。
 
-## 下一版計畫
+## V35.2 修 nonlocal
 
 V35.2：用 `nonlocal _v35_last_level` 修 closure scope bug。用相同 config 重跑，隔離 bug 的影響。

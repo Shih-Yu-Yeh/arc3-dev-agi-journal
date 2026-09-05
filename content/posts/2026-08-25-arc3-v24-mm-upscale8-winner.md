@@ -1,26 +1,16 @@
 +++
-title = "ARC3 V24 (LB 2.56): MULTIMODAL_UPSCALE=8 — 從 1.53 到 2.56 的決定性一擊"
-date = 2026-08-25T04:12:00+08:00
-draft = false
-tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "FP8", "MULTIMODAL_UPSCALE", "winner"]
-categories = ["ARC3 Dev Journal"]
-summary = "單一變數改動：MULTIMODAL_UPSCALE 4 → 8（256x256 → 512x512 vision）。Local mean 4.984（比 V23 +66%）。LB 2.56（比 V23 +1.03）。個人最佳。"
-lb_score = "2.56"
-version = "V24"
-status = "WINNER"
-+++
 
-## 摘要
+## 為什麼 512x512 比 256x256 好
 
 V23 用 MULTIMODAL_UPSCALE=4 拿到 local mean 3.008。我假設 256x256 vision 失去了 ARC-AGI-3 cover predicate 與 co-location win condition 所需的 sub-cell pattern，512x512 應該能保留它們。V24 是單一變數改動：`MULTIMODAL_UPSCALE = 8`（原 4），沒有其他改動。Local mean 升到 4.984（+66%），LB 升到 2.56（+1.03）。這是整個 33 天 campaign 中最乾淨的歸因實驗。
 
-## Context
+## V23 的瓶頸在哪
 
 V23 用 MULTIMODAL_UPSCALE=4 拿到 local mean 3.008。我假設 256x256 vision 失去了 ARC-AGI-3 cover predicate 與 co-location win condition 所需的 sub-cell pattern。512x512 應該能保留它們。
 
 V24 是單一變數改動：`MULTIMODAL_UPSCALE = 8`（原 4）。沒有其他改動。這是整個 33 天 campaign 中最乾淨的歸因實驗。
 
-## 技術選擇
+## 一行 patch
 
 Patch 是一行：
 
@@ -36,7 +26,7 @@ Patch 在 Cell 5（pre-setup）套用，在 TAAF setup command 跑之前，遵�
 
 驗證：stdout 含 `v24: Patched MULTIMODAL_UPSCALE to 8 (512x512 vision)`。TAAF setup command 讀到 env var 並據此設定 solver。
 
-## 參數決策
+## 單一變數，最乾淨的歸因
 
 | 參數 | V23 | V24 | 理由 |
 |---|---|---|---|
@@ -48,14 +38,14 @@ Patch 在 Cell 5（pre-setup）套用，在 TAAF setup command 跑之前，遵�
 | context window | 32768 | 32768 | 未變 |
 | n_passes | 1 | 1 | 未變 |
 
-## Local vs LB Score
+## +66% local, +1.03 LB, 52% transfer
 
 - Local mean: 4.984
 - Baseline（上一版）: V23 local 3.008
 - Local delta: +1.976（+66%）
 - LB score: **2.56**
 
-## Patch 驗證
+## 9 個 patch 全部 fire 且配置正確
 
 | Patch | 是否 fire? | Marker |
 |---|---|---|
@@ -69,7 +59,7 @@ Patch 在 Cell 5（pre-setup）套用，在 TAAF setup command 跑之前，遵�
 | context window set | yes | ANALYZER_CONTEXT_WINDOW = 32768 |
 | vLLM server started | yes | vLLM server ready |
 
-## 結果分析
+## sub-cell pattern 為什麼重要
 
 LB 2.56，比 V23 的 1.53 +1.03。Local mean 4.984，比 V23 的 3.008 +66%。Local 改善有 52% 反映在 LB 上（+1.03 / +1.976），這是整個 campaign 最高的 transfer rate。
 
@@ -87,6 +77,6 @@ ARC-AGI-3 hidden games 包含 cover predicate（每個 kind A 物件最終要跟
 
 這是唯一一次所有 9 個關鍵 patch 同時 fire 且配置正確的提交。V25 會因為拿掉 FP8 KV、WBC、RE cap、NG 而破壞這個。
 
-## 下一版計畫
+## V25 的疊 grafts 計畫
 
 V25 會在 V24 上加 7 個 TAAF grafts（winframe、goalkeep、clockwatch、hudmask、clickmap、searchmap、lawbook）。目標 LB 3.0+。假設是在 V24 的 winning config 上疊 grafts 應該複合。

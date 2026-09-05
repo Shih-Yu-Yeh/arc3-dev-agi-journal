@@ -1,20 +1,10 @@
 +++
-title = "ARC3 V21 (LB 0.00): 2-Pass Visible Updates — Dummy 提交事故調查"
-date = 2026-08-22T13:36:00+08:00
-draft = false
-tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "dummy-submission", "pipeline-failure"]
-categories = ["ARC3 Dev Journal"]
-summary = "9 個 patch 全部 fire，加了 2-pass visible updates。LB 回 0.00，因為 submission.parquet 是 3411 byte 的 dummy。Pipeline 問題，不是 solver 問題。"
-lb_score = "0.00"
-version = "V21"
-status = "PIPELINE_FAILURE"
-+++
 
-## 摘要
+## Dummy 提交事故
 
 V19 退步到 1.17，我假設 2-pass visible updates（每遊戲玩兩次，保留較高分）會讓 solver 在第一次 timeout 的遊戲上有第二次機會。V21 在 V19 的 9 個 patch 上加 2-pass，所有 patch 驗證 fire，預期 LB 1.5+。結果 LB 0.00——submission.parquet 是 3411 byte 的 dummy placeholder，不是真實遊戲分數。
 
-## Context
+## 2-pass 的假設
 
 V19 退步到 1.17。我假設 2-pass visible updates（每遊戲玩兩次，保留較高分）會讓 solver 在第一次 timeout 的遊戲上有第二次機會，恢復退步。
 
@@ -22,7 +12,7 @@ V21 在 V19 的 9 個 patch 上加 2-pass。所有 patch 驗證 fire。預期 LB
 
 結果 LB 0.00。submission.parquet 是 3411 byte，是 dummy placeholder，不是真實遊戲分數。
 
-## 技術選擇
+## 2-pass 實作的陷阱
 
 2-pass 機制：用相同遊戲清單跑 `bm.run()` 兩次。兩次都跑完後，每遊戲取較高分寫進 submission.parquet。
 
@@ -30,7 +20,7 @@ V21 在 V19 的 9 個 patch 上加 2-pass。所有 patch 驗證 fire。預期 LB
 
 3411 byte 的 submission.parquet 是 `KAGGLE_IS_COMPETITION_RERUN=False`（commit run）時寫的 placeholder。Hidden rerun 應該用真實分數覆寫它。但 hidden rerun 也產出了 3411 byte 檔案，表示 hidden rerun 沒實際跑 solver。
 
-## 參數決策
+## try/except 的設計缺陷
 
 | 參數 | V19 | V21 | 理由 |
 |---|---|---|---|
@@ -39,14 +29,14 @@ V21 在 V19 的 9 個 patch 上加 2-pass。所有 patch 驗證 fire。預期 LB
 | patches | 9 個 fire | 9 個 fire | 全部驗證 |
 | model | Qwen3.8-27B-FP8 | Qwen3.8-27B-FP8 | 未變 |
 
-## Local vs LB Score
+## 0.00 的衝擊
 
 - Local mean: 未量測
 - Baseline（上一版）: V19 LB 1.17
 - Local delta: n/a
 - LB score: **0.00**
 
-## Patch 驗證
+## 9 patch 都 fire 但無效
 
 | Patch | 是否 fire? | Marker |
 |---|---|---|
@@ -60,7 +50,7 @@ V21 在 V19 的 9 個 patch 上加 2-pass。所有 patch 驗證 fire。預期 LB
 | context window set | yes | ANALYZER_CONTEXT_WINDOW = 32768 |
 | vLLM server started | yes | vLLM server ready |
 
-## 結果分析
+## 3411 byte placeholder 之謎
 
 LB 0.00。submission.parquet 是 3411 byte，是 dummy placeholder 格式。
 
@@ -76,6 +66,6 @@ submission.parquet schema 可能錯了。3411 byte 大小暗示是 1 列 placeho
 
 V21 resubmit（下一篇）測 0.00 是 transient 還是 persistent。
 
-## 下一版計畫
+## resubmit 測 transient vs persistent
 
 V21 resubmit：再 push 同一個 kernel，看 0.00 是 transient 還是 persistent。

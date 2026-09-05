@@ -1,20 +1,10 @@
 +++
-title = "ARC3 V14 (ERROR): Temperature 0.3 Patch — 一個靜默失敗的紀錄"
-date = 2026-08-11T10:25:00+08:00
-draft = false
-tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "temperature", "silent-failure"]
-categories = ["ARC3 Dev Journal"]
-summary = "聲稱把 temperature 從 0.6 降到 0.3。Patch 驗證顯示 temperature 還是 0.6。Kernel 因其他原因 ERROR。Temperature 實驗白做了。"
-lb_score = "ERROR"
-version = "V14"
-status = "SILENT_FAILURE"
-+++
 
-## 摘要
+## Patch 沒套上的那 4 層
 
 V14 想測試較低 temperature 對 hidden games 的影響。Notebook source 裡有 patch code，commit run 應該把 `LOCAL_ANALYZER_TEMPERATURE: '0.3'` 寫進環境。實際上沒有——stdout 顯示 temperature 還是 0.6。Kernel 還因為其他原因 ERROR。整個 temperature 實驗等於白做。
 
-## Context
+## 溫度 0.3 的假設
 
 判斷是：ARC-AGI-3 hidden games 有嚴格 win condition（例如 cover predicate、co-location）。較高 temperature（0.6）引入動作變動，可能破壞這些條件。較低 temperature（0.3）應該產生更確定、可重現的動作。
 
@@ -22,13 +12,13 @@ V14 設計來測這個。Notebook source 含 patch code。Commit run 應該把 `
 
 它沒有。
 
-## 技術選擇
+## 為什麼選 0.3 而不是 0.4
 
 Patch 應該在 TAAF setup command 跑之前設定 `LOCAL_ANALYZER_TEMPERATURE='0.3'`。TAAF setup 讀這個 env var 並寫進 `taaf_setup_env.json`，solver 在 runtime 讀取。
 
 Patch code 語法正確。問題在執行順序：env var 在 TAAF setup command 已經讀過預設值（0.6）並寫進 `taaf_setup_env.json` 之後才被設定。Patch 太晚了。
 
-## 參數決策
+## 聲稱 vs 實際
 
 | 參數 | V13 | V14（聲稱） | V14（實際） |
 |---|---|---|---|
@@ -37,14 +27,14 @@ Patch code 語法正確。問題在執行順序：env var 在 TAAF setup command
 | context window | 32768 | 32768 | 未變 |
 | MULTIMODAL_UPSCALE | 4 | 4 | 未變 |
 
-## Local vs LB Score
+## kernel ERROR
 
 - Local mean: n/a（kernel 在 solver 跑之前 ERROR）
 - Baseline（上一版）: V13 LB 0.87
 - Local delta: n/a
 - LB score: **ERROR**
 
-## Patch 驗證
+## 4 層檢查的結果
 
 | Patch | 是否 fire? | Marker |
 |---|---|---|
@@ -53,7 +43,7 @@ Patch code 語法正確。問題在執行順序：env var 在 TAAF setup command
 | context window set | yes | ANALYZER_CONTEXT_WINDOW = 32768 |
 | vLLM server started | yes | vLLM server ready |
 
-## 結果分析
+## 為什麼 4 層驗證是必要的
 
 LB ERROR。Kernel 在 commit run 階段失敗，solver 沒機會跑。Temperature patch 聲稱有但從未 fire。
 
@@ -74,6 +64,6 @@ LB ERROR。Kernel 在 commit run 階段失敗，solver 沒機會跑。Temperatur
 
 關鍵收穫：通過 syntax check（第 1 層）的 patch 仍可能在 semantic check（第 2 層）失敗。4 層驗證是必要的，不是選配。
 
-## 下一版計畫
+## Temperature 實驗延後
 
 V15 fork `dvm` 的 kernel 來觀察另一隊怎麼處理 vLLM 啟動。Temperature 實驗延後。

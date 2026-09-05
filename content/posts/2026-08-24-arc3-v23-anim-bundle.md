@@ -1,26 +1,16 @@
 +++
-title = "ARC3 V23 (LB 1.53): Anim Bundle + Qwen3.8 Wheelhouse Fix"
-date = 2026-08-24T01:43:00+08:00
-draft = false
-tags = ["ARC3", "ARC-AGI-3", "Kaggle", "TAAF", "Qwen3-8", "anim-bundle"]
-categories = ["ARC3 Dev Journal"]
-summary = "切到 jakobbrggen anim bundle，修 wheelhouse owner，退回 1-pass。LB 1.53，從 V21 的 0.00 恢復並創新個人最佳。"
-lb_score = "1.53"
-version = "V23"
-status = "IMPROVEMENT"
-+++
 
-## 摘要
+## 從 0.00 恢復
 
 V21 的 2-pass 實驗兩次都 0.00，2-pass code 被放棄。V23 退回 1-pass，做兩個改動：切到 `jakobbrggen/taaf-kaggle-source-anim-20260807-anim` bundle（內建 animation-awareness），修 wheelhouse owner 從 `jeroencottaar` 改成 `driessmit1`。LB 1.53，從 V21 的 0.00 恢復並創新個人最佳（超過 V17 的 1.43）。
 
-## Context
+## 2-pass 失敗後的退路
 
 V21 的 2-pass 實驗兩次都 0.00。2-pass code 被放棄。V23 退回 1-pass。
 
 兩個改動：切到 `jakobbrggen/taaf-kaggle-source-anim-20260807-anim` bundle（內建 animation-awareness）；修 wheelhouse owner 從 `jeroencottaar` 改成 `driessmit1`，原本造成靜默 dependency resolution 失敗。
 
-## 技術選擇
+## 為什麼 anim bundle 有效
 
 Anim bundle：`jakobbrggen/taaf-kaggle-source-anim-20260807-anim` bundle 包含：
 
@@ -32,7 +22,7 @@ Wheelhouse 修復：把 `WHEELHOUSE_OWNER = 'jeroencottaar'` 改成 `WHEELHOUSE_
 
 V23 沒有 MULTIMODAL_UPSCALE patch。Anim bundle 預設 MULTIMODAL_UPSCALE=4。
 
-## 參數決策
+## wheelhouse deprecation 的歷史
 
 | 參數 | V21 | V23 | 理由 |
 |---|---|---|---|
@@ -43,14 +33,14 @@ V23 沒有 MULTIMODAL_UPSCALE patch。Anim bundle 預設 MULTIMODAL_UPSCALE=4。
 | FP8 KV cache | enabled | enabled | 保留 |
 | model | Qwen3.8-27B-FP8 | Qwen3.8-27B-FP8 | 未變 |
 
-## Local vs LB Score
+## 1.53 新個人最佳
 
 - Local mean: 3.008
 - Baseline（上一版）: V21 LB 0.00
 - Local delta: n/a（V21 是 0.00）
 - LB score: **1.53**
 
-## Patch 驗證
+## 8 個 marker
 
 | Patch | 是否 fire? | Marker |
 |---|---|---|
@@ -63,7 +53,7 @@ V23 沒有 MULTIMODAL_UPSCALE patch。Anim bundle 預設 MULTIMODAL_UPSCALE=4。
 | context window set | yes | ANALYZER_CONTEXT_WINDOW = 32768 |
 | vLLM server started | yes | vLLM server ready |
 
-## 結果分析
+## animation-awareness 為什麼關鍵
 
 LB 1.53，從 V21 的 0.00 恢復並創新個人最佳（超過 V17 的 1.43）。
 
@@ -73,6 +63,6 @@ Wheelhouse 修復是必要但不充分。沒有正確 wheelhouse，vLLM 無法�
 
 MULTIMODAL_UPSCALE=4（stock）是瓶頸。V23 local mean 3.008。下一版（V24）會升級到 MULTIMODAL_UPSCALE=8，目標 local mean 5.0+。
 
-## 下一版計畫
+## MULTIMODAL_UPSCALE 的目標
 
 V24：把 MULTIMODAL_UPSCALE 從 4 升到 8。單一變數改動。目標 LB 2.0+。
