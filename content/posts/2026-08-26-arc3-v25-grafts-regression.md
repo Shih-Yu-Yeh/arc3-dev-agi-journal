@@ -80,7 +80,7 @@ V25 有 MULTIMODAL_UPSCALE=8 與 7 個 grafts，但掉了 V24 的 4 個關鍵 pa
 | reasoning effort cap | NO | 沒有 reasoning_effort marker |
 | noop guard verified | NO | 沒有 hard_noop_guard marker |
 
-![V24 vs V25 Patch 對比](/images/v25-patch-comparison.png)
+![V24 vs V25 Patch 對比](/arc3-dev-agi-journal/images/v25-patch-comparison.png)
 
 ## 加 feature 不是免費的
 
