@@ -81,7 +81,7 @@ def step_env(...):
 
 LB 1.59，跟 V35.1 broken 分數相同。Local mean 6.44（比 V24 local 4.984 +29%）。
 
-![V35.2 vs V24 Per-game 對比](/images/v35-2-vs-v24-per-game.png)
+![V35.2 vs V24 Per-game 對比](/arc3-dev-agi-journal/images/v35-2-vs-v24-per-game.png)
 
 這是 modules 對 ARC-AGI-3 是淨負面最強的證據：
 
