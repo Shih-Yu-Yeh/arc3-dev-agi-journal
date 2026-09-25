@@ -1,4 +1,4 @@
-baseURL = "https://ocean240812.github.io/arc3-dev-agi-journal/"
+baseURL = "https://shih-yu-yeh.github.io/arc3-dev-agi-journal/"
 languageCode = "en-us"
 title = "ARC3 Dev Journal"
 theme = "PaperMod"
@@ -34,7 +34,7 @@ enableEmoji = false
 
   [[params.socialIcons]]
     name = "github"
-    url = "https://github.com/ocean240812"
+    url = "https://github.com/Shih-Yu-Yeh"
   [[params.socialIcons]]
     name = "kaggle"
     url = "https://www.kaggle.com/ocean240812"
