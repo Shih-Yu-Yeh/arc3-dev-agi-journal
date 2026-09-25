@@ -58,7 +58,7 @@ Patch code 語法正確。問題在執行順序：env var 在 TAAF setup command
 
 LB ERROR。Kernel 在 commit run 階段失敗，solver 沒機會跑。Temperature patch 聲稱有但從未 fire。
 
-![4 層 patch 驗證流程](/images/4layer-validation.png)
+![4 層 patch 驗證流程](/arc3-dev-agi-journal/images/4layer-validation.png)
 
 依 4 層檢查（§7）：
 
