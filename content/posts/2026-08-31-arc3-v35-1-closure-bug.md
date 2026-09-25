@@ -46,7 +46,7 @@ Bug：`_v35_last_level` 在 `if` branch 內被指派。Python 把它當 local �
 
 修法：在 `step_env` 頂部加 `nonlocal _v35_last_level`。但 V35.1 沒有這個修復。
 
-![Closure Scope Bug 示意](/images/v35-1-closure-bug.png)
+![Closure Scope Bug 示意](/arc3-dev-agi-journal/images/v35-1-closure-bug.png)
 
 ## step_env wrap 的 closure bug
 
@@ -85,7 +85,7 @@ Bug：`_v35_last_level` 在 `if` branch 內被指派。Python 把它當 local �
 
 LB 1.59，比 V34 的 2.24 -0.65。Kernel 完成（LB 回真實分數），但每次 step_env call 都崩潰，raise `UnboundLocalError: cannot access local variable '_v35_last_level'`。
 
-![V35.1 各遊戲錯誤分布](/images/v35-1-per-game-errors.png)
+![V35.1 各遊戲錯誤分布](/arc3-dev-agi-journal/images/v35-1-per-game-errors.png)
 
 各遊戲的錯誤計數：
 
