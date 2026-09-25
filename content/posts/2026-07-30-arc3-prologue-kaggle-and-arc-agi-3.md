@@ -10,18 +10,6 @@ version = "Prologue"
 status = "INTRO"
 +++
 
-title = "ARC3 序言 — Kaggle 平台與 ARC Prize 2026 簡介"
-date = 2026-07-30T00:00:00+08:00
-draft = false
-tags = ["ARC3", "ARC-AGI-3", "Kaggle", "prologue"]
-categories = ["ARC3 Dev Journal"]
-summary = "進入開發紀錄前的背景說明：Kaggle 平台的角色、ARC Prize 2026 想推動的問題、以及我進場前對規則的理解。"
-lb_score = "n/a"
-version = "Prologue"
-status = "INTRO"
-+++
-
-
 ## 為什麼選這個戰場
 
 這篇是開發紀錄的起點。正文從 V2 開始，每篇對應一次 leaderboard 提交，記錄技術選擇、參數決策、分數變化、以及背後的判斷。在進入正文之前，先把兩件事講清楚：Kaggle 這個平台在做什麼，以及 ARC Prize 2026 (ARC-AGI-3) 想測的東西。
