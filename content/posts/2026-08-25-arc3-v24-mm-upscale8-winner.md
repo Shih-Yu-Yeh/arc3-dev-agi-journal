@@ -74,13 +74,13 @@ Patch 在 Cell 5（pre-setup）套用，在 TAAF setup command 跑之前，遵�
 
 LB 2.56，比 V23 的 1.53 +1.03。Local mean 4.984，比 V23 的 3.008 +66%。Local 改善有 52% 反映在 LB 上（+1.03 / +1.976），這是整個 campaign 最高的 transfer rate。
 
-![V24 架構圖](/images/v24-arch.png)
+![V24 架構圖](/arc3-dev-agi-journal/images/v24-arch.png)
 
 為什麼 MULTIMODAL_UPSCALE=8 這麼重要？
 
 ARC-AGI-3 hidden games 包含 cover predicate（每個 kind A 物件最終要跟 kind B 物件共位）與 pixel-level equality（workspace 區域要等於參考區域）。256x256 下 sub-cell pattern 丟失，solver 無法區分兩個形狀相似的物件。512x512 下 solver 可以。
 
-![V24 視覺對比](/images/v24-vision-comparison.png)
+![V24 視覺對比](/arc3-dev-agi-journal/images/v24-vision-comparison.png)
 
 4x token 增加（256x256 = 65k tokens，512x512 = 262k tokens 處理前）被 FP8 KV cache 與 32k context window 吸收。Vision tokens 每次觀察處理一次，不是跨整個遊戲保留。
 
