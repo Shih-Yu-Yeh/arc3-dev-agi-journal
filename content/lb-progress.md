@@ -8,11 +8,11 @@ draft = false
 
 ## 分數時間軸
 
-![LB Score Timeline](/images/lb-progress.png)
+![LB Score Timeline](/arc3-dev-agi-journal/images/lb-progress.png)
 
 ## Patch 數量 vs LB Score
 
-![Patch vs LB](/images/patch-vs-lb.png)
+![Patch vs LB](/arc3-dev-agi-journal/images/patch-vs-lb.png)
 
 右圖提出一個反直觀的觀察：更多已驗證 fire 的 patch 不代表更高 LB score。V24（9 patches）拿到 2.56。V35.2（10 patches）拿到 1.59。重要的 patch 是 vision resolution 與 FP8 KV cache；module 風格的 instrumentation 一致地退步。
 
