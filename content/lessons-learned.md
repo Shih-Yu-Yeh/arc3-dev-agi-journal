@@ -28,7 +28,7 @@ draft = false
 
 **§7.** Patch 驗證是 4 層檢查：
 
-![4 層 patch 驗證流程](/images/4layer-validation.png)
+![4 層 patch 驗證流程](/arc3-dev-agi-journal/images/4layer-validation.png)
 
 1. Syntax：notebook source 含 patch code。
 2. Semantic：stdout 含預期 marker print。
@@ -92,9 +92,9 @@ V31 stdout 宣稱 `7 modules installed`。實際：0 個 modules 執行。
 
 ### 4. V35.1 UnboundLocalError x 2443
 
-![V35.1 各遊戲錯誤分布](/images/v35-1-per-game-errors.png)
+![V35.1 各遊戲錯誤分布](/arc3-dev-agi-journal/images/v35-1-per-game-errors.png)
 
-![Closure Scope Bug 示意](/images/v35-1-closure-bug.png)
+![Closure Scope Bug 示意](/arc3-dev-agi-journal/images/v35-1-closure-bug.png)
 
 ```python
 def step_env(...):
@@ -131,7 +131,7 @@ Local mean：V23 3.008，V24 4.984（+66%）。LB：V23 1.53，V24 2.56（+67%�
 
 對 ARC-AGI-3 來說，vision resolution 比 reasoning effort、context window size、module sophistication 都重要。512x512 grid rendering 保留了 256x256 丟失的 sub-cell pattern，讓 solver 能讀出 cover predicate 與 co-location win condition。
 
-![V24 視覺對比](/images/v24-vision-comparison.png)
+![V24 視覺對比](/arc3-dev-agi-journal/images/v24-vision-comparison.png)
 
 ---
 
