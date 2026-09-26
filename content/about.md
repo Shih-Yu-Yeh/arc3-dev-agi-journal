@@ -27,7 +27,7 @@ ARC-AGI-3 是第一個互動式 AI agent benchmark：110 個 hidden games、單 
 
 ## 技術棧
 
-![ARC3 技術棧架構](/images/about-tech-stack.png)
+![ARC3 技術棧架構](/arc3-dev-agi-journal/images/about-tech-stack.png)
 
 | 層 | 選擇 | 理由 |
 |---|------|------|
