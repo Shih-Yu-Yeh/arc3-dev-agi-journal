@@ -14,7 +14,7 @@ draft = false
 
 **V24 在 2026-08-25 達到 LB 2.56**，方法是將 `MULTIMODAL_UPSCALE` 從 4 升到 8（256x256 改 512x512 vision rendering）。其他所有改動——modules、grafts、prompt addenda、context budget、temperature tuning——都退步或沒有可量測效果。
 
-![V24 架構圖](/images/v24-arch.png)
+![V24 架構圖](/arc3-dev-agi-journal/images/v24-arch.png)
 
 ## 這份 Journal 是什麼
 
